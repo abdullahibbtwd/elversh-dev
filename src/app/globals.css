@@ -1,3 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+
 @custom-variant dark (&:is(.dark *));
+@layer base {
+  body {
+    @apply bg-gray-200 dark:bg-black;
+   
+  }
+}

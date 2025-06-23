@@ -1,14 +1,28 @@
+import AboutMeSection from '@/components/AboutMe'
+import Contact from '@/components/Contact'
+import EducationSection from '@/components/Education'
+import ExperienceSection from '@/components/Exprience'
+import Footer from '@/components/Footer'
+import Hero from '@/components/Hero'
+import ProjectsSection from '@/components/Project'
+import ServicesSection from '@/components/Sevices'
+import SkillsSection from '@/components/Skills'
+import React from 'react'
 
-import { ThemeButton } from "@/components/ThemeButton";
-
-export default function Home() {
+const Home = () => {
   return (
-    <div className="flex items-center justify-center w-full h-screen bg-[#E0E0E0] dark:bg-[#121212]">
-   
-        <ThemeButton />
-      
-
-     
+    <div className='overflow-x-hidden'>
+      <Hero/>
+      <AboutMeSection/>
+      <ServicesSection/>
+      <SkillsSection/>
+      <ProjectsSection/>
+      <ExperienceSection/>
+      <EducationSection/>
+      <Contact/>
+      <Footer/>
     </div>
-  );
+  )
 }
+
+export default Home

@@ -9,34 +9,50 @@ import {
   GraduationCap,
   Clock,
   LogOut,
+  MessageCircle
 } from "lucide-react";
 import { ThemeButton } from "../ThemeButton";
 import Image from "next/image";
-const navItems = [
-  { name: "Hero Section", icon: LayoutDashboard },
-  { name: "About", icon: User },
-  { name: "Services", icon: Briefcase },
-  { name: "Skills", icon: Code },
-  { name: "Project", icon: Folder },
-  { name: "Education and Certificate", icon: GraduationCap },
-  { name: "Working Experience", icon: Clock },
+import { useTheme } from "@/app/context/ThemeContext";
+import Dock from "./Dock";
+import { useMediaQuery } from "react-responsive";
+import { usePathname } from "next/navigation"; // Added for route detection
+
+interface NavItem {
+  name: string;
+  icon: React.ElementType;
+  href: string;
+}
+
+const navItems: NavItem[] = [
+  { name: "Chats", icon: MessageCircle, href: "/admin" },
+  { name: "Hero Section", icon: LayoutDashboard, href: "/admin/hero" },
+  { name: "About", icon: User, href: "/admin/about" },
+  { name: "Services", icon: Briefcase, href: "/admin/services" },
+  { name: "Skills", icon: Code, href: "/admin/skills" },
+  { name: "Project", icon: Folder, href: "/admin/project" },
+  { name: "Education & Certificate", icon: GraduationCap, href: "/admin/education" },
+  { name: "Working Experience", icon: Clock, href: "/admin/exprience" },
 ];
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [activeItem, setActiveItem] = useState("Hero Section");
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const { isDark, router } = useTheme();
+  const pathname = usePathname(); // Get current route
+  
+  // Check if screen is small (mobile)
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
-  // Toggle dark mode
+  // Get active item based on current route
+  const activeItem = navItems.find(item => item.href === pathname)?.name || "Hero Section";
 
-  // Collapse sidebar after 10 seconds of inactivity
   const startTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setIsExpanded(false), 10000);
   };
 
-  // Reset timer on user interaction
   const resetTimer = () => {
     startTimeout();
   };
@@ -73,23 +89,32 @@ export default function Sidebar() {
     };
   }, []);
 
+  // Render Dock on mobile
+  if (isMobile) {
+    return (
+      <Dock
+        items={navItems}
+        activeItem={activeItem}
+      />
+    );
+  }
+
+  
   return (
     <div
       ref={sidebarRef}
-      className={`fixed top-4 left-4 z-50 h-[calc(100vh-2rem)] rounded-xl shadow-xl transition-all duration-300 ease-in-out ${
-        isExpanded ? "w-72" : "w-20"
-      } bg-[#E0E0E0] dark:bg-[#121212]`}
+      className={`h-full rounded-xl shadow-xl transition-all duration-300 ease-in-out ${
+        isExpanded ? "w-68" : "w-20"
+      } bg-gradient-to-br from-indigo-50 to-teal-50 dark:bg-gradient-to-br dark:from-gray-950 dark:to-gray-950 flex-shrink-0`}
     >
       <div className="h-full flex flex-col">
         <div className="p-6 pb-2 flex flex-col items-center">
-          {/* <h1
-            className={`text-2xl font-bold text-gray-800 dark:text-gray-200 mb-8 transition-opacity ${
-              !isExpanded ? "opacity-0 h-0 mb-0" : "opacity-100 h-auto"
-            }`}
-          >
-            Configuple
-          </h1> */}
-          <Image alt="logo" src="/elversh.png" width={200} height={100}/>
+          <Image
+            alt="logo"
+            src={`${isDark ? "/elversh.png" : "/darklogo.png"}`}
+            width={180}
+            height={100}
+          />
         </div>
 
         <nav className="flex flex-col px-4">
@@ -106,9 +131,9 @@ export default function Sidebar() {
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
               onClick={() => {
-                setActiveItem(item.name);
                 setIsExpanded(true);
                 resetTimer();
+                router.push(item.href);
               }}
             >
               <div className={``}>
@@ -139,28 +164,19 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        <div
-          className="flex flex-col  border-t px-4 border-gray-300 gap-3 items-center w-full  dark:border-gray-700"
-          //className={`p-1   border-t border-gray-300  ${isExpanded?" flex flex-col px-7 py-2":"p-1"} dark:border-gray-700`}
-        >
+        <div className="flex flex-col border-t px-4 border-gray-300 gap-3 items-center w-full dark:border-gray-700">
           <div className="mt-3">
-              <ThemeButton />
+            <ThemeButton />
           </div>
-        
-          
-      
-        
-
           <button
-            className={`flex  w-full p-3 items-center  rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700`}
+          onClick={()=> router.push("/")}
+            className={`flex w-full p-3 cursor-pointer  items-center rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700`}
           >
-            <div className={`${!isExpanded?"w-full flex items-center justify-center":""}`}>
+            <div
+              className={`${!isExpanded ? "w-full flex items-center justify-center" : ""}`}
+            >
               <LogOut
-                className={` ${
-                  !isExpanded
-                    ? "h-6 w-6 flex items-center "
-                    : "h-6 w-6 "
-                }`}
+                className={` ${!isExpanded ? "h-6 w-6 flex items-center " : "h-6 w-6 "}`}
               />
             </div>
             <div className={`${!isExpanded ? "hidden " : "flex"}`}>
