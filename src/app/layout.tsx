@@ -24,6 +24,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
         <meta name="keywords" content={metadata.keywords.join(", ")} />
@@ -32,7 +34,7 @@ export default function RootLayout({
         <meta property="og:description" content={metadata.description} />
         <meta property="og:image" content="/opengraph-image.png" />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://yourdomain.com/" />
+        <meta property="og:url" content="https://elversh-dev.vercel.app/" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="/opengraph-image.png" />
         <meta name="google-site-verification" content="3nuDCGxo22EY8Xi0BCH2ayENBVqVcJVBP_y8sooXtA4" />
