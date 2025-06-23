@@ -159,7 +159,7 @@ const ProjectsSection = () => {
 
   // Auto-play functionality (optional - can be disabled)
   useEffect(() => {
-    if (projects.length <= 1) return;
+    if (projects.length <= 1 || !isAutoPlaying) return;
     
     const autoPlayInterval = setInterval(() => {
       if (!isTransitioning) {
@@ -168,7 +168,7 @@ const ProjectsSection = () => {
     }, 8000); // Change slide every 8 seconds
 
     return () => clearInterval(autoPlayInterval);
-  }, [projects.length, isTransitioning]);
+  }, [projects.length, isTransitioning, isAutoPlaying]);
 
   // Touch/swipe support for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -202,8 +202,10 @@ const ProjectsSection = () => {
   const toggleExpand = (index: number) => {
     if (expandedProject === index) {
       setExpandedProject(null);
+      setIsAutoPlaying(true); // Resume auto-play when collapsing
     } else {
       setExpandedProject(index);
+      setIsAutoPlaying(false); // Pause auto-play when expanding
     }
   };
 
@@ -351,7 +353,7 @@ const ProjectsSection = () => {
                                   className={`p-1.5 rounded-full ${
                                     isDark 
                                       ? "bg-gray-800 hover:bg-gray-700" 
-                                      : "bg-gradient-to-br from-blue-50 to-purple-50 hover:bg-gradient-to-br from-blue-600 to-purple-600"
+                                      : "bg-gray-200 hover:bg-gray-300"
                                   } transition-colors`}
                                   aria-label="View on GitHub"
                                 >
@@ -366,7 +368,7 @@ const ProjectsSection = () => {
                                   className={`p-1.5 rounded-full ${
                                     isDark 
                                       ? "bg-gray-800 hover:bg-gray-700" 
-                                      : "bg-gradient-to-br from-blue-50 to-purple-50 hover:bg-gradient-to-br from-blue-600 to-purple-600"
+                                      : "bg-gray-200 hover:bg-gray-300"
                                   } transition-colors`}
                                   aria-label="View live project"
                                 >
@@ -444,10 +446,10 @@ const ProjectsSection = () => {
                 <button
                   onClick={prevSlide}
                   disabled={isTransitioning}
-                  className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
+                  className={`absolute left-4 top-1/2 cursor-pointer -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
                     isDark 
                       ? "bg-gray-800/80 hover:bg-gray-700/90 text-white" 
-                      : "bg-gradient-to-br from-blue-50 to-purple-50/80 hover:bg-gradient-to-br from-blue-600 to-purple-600/90 text-gray-800"
+                      : "bg-gray-300  text-gray-800"
                   } shadow-lg backdrop-blur-sm ${
                     isTransitioning ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
                   }`}
@@ -460,10 +462,10 @@ const ProjectsSection = () => {
                 <button
                   onClick={nextSlide}
                   disabled={isTransitioning}
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
+                  className={`absolute right-4 top-1/2 cursor-pointer -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
                     isDark 
                       ? "bg-gray-800/80 hover:bg-gray-700/90 text-white" 
-                      : "bg-gradient-to-br from-blue-50 to-purple-50/80 hover:bg-gradient-to-br from-blue-600 to-purple-600/90 text-gray-800"
+                      : "bg-gray-300  text-gray-800  text-gray-800"
                   } shadow-lg backdrop-blur-sm ${
                     isTransitioning ? "opacity-50 cursor-not-allowed" : "hover:scale-110"
                   }`}
