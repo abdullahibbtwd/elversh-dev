@@ -333,12 +333,7 @@ const Hero = () => {
                       isDark ? "bg-blue-900" : "bg-blue-100"
                     }`}
                   >
-                    <Image
-                      src="/path-to-laptop-icon.png"
-                      alt="Laptop"
-                      width={40}
-                      height={40}
-                    />
+                    <LaptopMinimal className="text-blue-500" />
                   </div>
                   <div>
                     <div className="font-medium">Frontend</div>
