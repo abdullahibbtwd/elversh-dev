@@ -7,6 +7,13 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
   description: 'Professional dashboard.',
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+  }
+}
 };
 
 export default function AdminLayout({

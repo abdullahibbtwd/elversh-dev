@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useState, useRef } from 'react';
 import { 
@@ -31,6 +30,7 @@ import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 const EducationCertificateDashboard = () => {
   // Convex queries and mutations
@@ -632,9 +632,11 @@ const EducationCertificateDashboard = () => {
                     <div className="flex items-center gap-4">
                       <div className="border rounded-md p-2 w-16 h-16 flex items-center justify-center">
                         {newEducation.logo ? (
-                          <img 
+                          <Image 
                             src={newEducation.logo} 
                             alt="Logo" 
+                            width={64}
+                            height={64}
                             className="w-full h-full object-contain"
                           />
                         ) : (
@@ -825,9 +827,11 @@ const EducationCertificateDashboard = () => {
                     <div className="flex items-center gap-4">
                       <div className="border rounded-md p-2 w-16 h-16 flex items-center justify-center">
                         {newCertificate.image ? (
-                          <img 
+                          <Image 
                             src={newCertificate.image} 
                             alt="Certificate" 
+                            width={64}
+                            height={64}
                             className="w-full h-full object-contain"
                           />
                         ) : (
@@ -925,9 +929,11 @@ const EducationCertificateDashboard = () => {
                                 <div className="flex items-center gap-4">
                                   {education.logo && (
                                     <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-purple-50 rounded-md p-1">
-                                      <img 
+                                      <Image 
                                         src={education.logo} 
                                         alt={education.institution} 
+                                        width={48}
+                                        height={48}
                                         className="w-full h-full object-contain"
                                       />
                                     </div>
@@ -1049,9 +1055,11 @@ const EducationCertificateDashboard = () => {
                                 <div className="flex items-center gap-4">
                                   {certificate.image && (
                                     <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-purple-50 rounded-md p-1">
-                                      <img 
+                                      <Image 
                                         src={certificate.image} 
                                         alt={certificate.title} 
+                                        width={48}
+                                        height={48}
                                         className="w-full h-full object-contain"
                                       />
                                     </div>

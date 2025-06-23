@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+
 "use client";
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import Image from 'next/image';
 
 interface FormData {
   headingPart1: string;
@@ -443,9 +444,11 @@ const HeroForm = () => {
 
                   {(previewImage || existingHeroImageUrl) && (
                     <div className="mt-2">
-                      <img
+                      <Image
                         src={previewImage || existingHeroImageUrl || ""}
                         alt="Preview"
+                        width={192}
+                        height={192}
                         className="w-48 h-48 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
                       />
                     </div>
@@ -626,9 +629,11 @@ const HeroForm = () => {
                       Profile Image:
                     </Label>
                     {previewImage || existingHeroImageUrl ? (
-                      <img
+                      <Image
                         src={previewImage || existingHeroImageUrl || ""}
                         alt="Hero preview"
+                        width={128}
+                        height={128}
                         className="w-32 h-32 object-cover rounded-full mt-2 border border-gray-300 dark:border-gray-600"
                       />
                     ) : (

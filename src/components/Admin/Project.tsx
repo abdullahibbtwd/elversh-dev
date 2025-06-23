@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
@@ -35,6 +34,7 @@ import { useMutation, useAction, useQuery } from 'convex/react';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 // Place this at the top level of your file
 type ProjectImageProps = {
@@ -44,8 +44,7 @@ type ProjectImageProps = {
 };
 const ProjectImage = ({ storageId, alt, ...props }: ProjectImageProps) => {
   const url = useQuery(api.files.getFileUrl, storageId ? { storageId } : 'skip');
-  if (!url) return <div className="bg-gray-200 w-full h-full" />; // fallback
-  return <img src={url} alt={alt} {...props} />;
+  return <Image src={url ?? "/placeholder.png"} alt={alt ?? ""} {...props} />;
 };
 
 const ProjectsAdminDashboard = () => {
@@ -370,10 +369,12 @@ const ProjectsAdminDashboard = () => {
                         {newProject.images.map((image, index) => (
                           <div key={index} className="relative group">
                             <div className="bg-gray-100 dark:bg-gray-700 w-24 h-24 rounded-md overflow-hidden">
-                              <img
+                              <Image
                                 src={URL.createObjectURL(image)}
                                 alt={`Preview ${index}`}
                                 className="w-full h-full object-cover"
+                                width={96}
+                                height={96}
                               />
                             </div>
                             <Button 
@@ -591,10 +592,12 @@ const ProjectsAdminDashboard = () => {
                                         title={techName}
                                       >
                                         {skill && skill.image ? (
-                                          <img 
+                                          <Image
                                             src={skill.image} 
                                             alt={techName}
                                             className="w-6 h-6 object-contain"
+                                            width={24}
+                                            height={24}
                                           />
                                         ) : (
                                           <div className="bg-gray-200 border-2 border-dashed rounded-xl w-6 h-6" />

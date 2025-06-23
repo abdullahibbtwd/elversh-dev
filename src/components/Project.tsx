@@ -19,6 +19,7 @@ import {
 import { useQuery } from 'convex/react';
 import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
+import Image from 'next/image';
 
 // ProjectImage component for handling Convex storage images
 type ProjectImageProps = {
@@ -30,7 +31,7 @@ type ProjectImageProps = {
 const ProjectImage = ({ storageId, alt, className }: ProjectImageProps) => {
   const url = useQuery(api.files.getFileUrl, storageId ? { storageId } : 'skip');
   if (!url) return <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-full" />;
-  return <img src={url} alt={alt} className={className} />;
+  return <Image src={url} alt={alt} className={className} width={200} height={200} />;
 };
 
 const ProjectsSection = () => {
@@ -413,10 +414,12 @@ const ProjectsSection = () => {
                                     title={techName}
                                   >
                                     {skill && skill.image ? (
-                                      <img 
+                                      <Image 
                                         src={skill.image} 
                                         alt={techName}
                                         className="w-9 h-9 object-contain"
+                                        width={36}
+                                        height={36}
                                       />
                                     ) : (
                                       <div className="bg-gray-200 border-2 border-dashed rounded-md w-5 h-5" />

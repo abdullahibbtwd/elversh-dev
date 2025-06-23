@@ -7,6 +7,7 @@ import { LaptopMinimal, ServerCog } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import Image from 'next/image';
 
 const Hero = () => {
   const heroRef = useRef(null);
@@ -273,10 +274,12 @@ const Hero = () => {
                     >
                       <div className="text-blue-500 text-5xl">
                       {Hompage?.heroImageUrl && (
-                         <img
+                         <Image
                           src={Hompage?.heroImageUrl || ""}
                           alt="pic"
                           className="rounded-full w-full h-full"
+                          width={200}
+                          height={200}
                         />
                       )}
                        
@@ -330,7 +333,12 @@ const Hero = () => {
                       isDark ? "bg-blue-900" : "bg-blue-100"
                     }`}
                   >
-                    <LaptopMinimal className="text-blue-500" />
+                    <Image
+                      src="/path-to-laptop-icon.png"
+                      alt="Laptop"
+                      width={40}
+                      height={40}
+                    />
                   </div>
                   <div>
                     <div className="font-medium">Frontend</div>
