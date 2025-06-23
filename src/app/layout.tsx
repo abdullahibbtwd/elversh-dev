@@ -35,8 +35,7 @@ export default function RootLayout({
         <meta property="og:url" content="https://yourdomain.com/" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="/opengraph-image.png" />
-        <meta name="google-site-verification" content="google06c567b6ae24bbdb" />
-      
+        <meta name="google-site-verification" content="3nuDCGxo22EY8Xi0BCH2ayENBVqVcJVBP_y8sooXtA4" />
       </head>
       <body>
         <AppProviders>
