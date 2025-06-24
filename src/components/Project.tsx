@@ -26,12 +26,23 @@ type ProjectImageProps = {
   storageId: Id<'_storage'>;
   alt?: string;
   className?: string;
+  objectFit?: 'cover' | 'contain';
 };
 
-const ProjectImage = ({ storageId, alt, className }: ProjectImageProps) => {
+const ProjectImage = ({ storageId, alt, className, objectFit = 'cover' }: ProjectImageProps) => {
   const url = useQuery(api.files.getFileUrl, storageId ? { storageId } : 'skip');
   if (!url) return <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-full" />;
-  return <Image src={url} alt="alt" className={className} width={200} height={200} />;
+  return (
+    <Image
+      src={url}
+      alt={alt || ''}
+      className={className}
+      width={1200}
+      height={675}
+      style={{ objectFit }}
+      sizes="(max-width: 768px) 100vw, 80vw"
+    />
+  );
 };
 
 const ProjectsSection = () => {
@@ -299,7 +310,8 @@ const ProjectsSection = () => {
                             <ProjectImage
                               storageId={project.images[activeImage]}
                               alt={project.title}
-                              className="w-full h-full object-cover"
+                              className="absolute inset-0 w-full h-full"
+                              objectFit="cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center">
                               <div className="bg-black/40 p-2 rounded-full">
@@ -325,7 +337,8 @@ const ProjectsSection = () => {
                                   <ProjectImage
                                     storageId={img}
                                     alt={project.title}
-                                    className="w-full h-full object-cover"
+                                    className="absolute inset-0 w-full h-full"
+                                    objectFit="cover"
                                   />
                                   {imgIndex === activeImage && (
                                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
@@ -539,7 +552,7 @@ const ProjectsSection = () => {
           onClick={closeLightbox}
         >
           <div 
-            className="max-w-6xl w-full max-h-[90vh] relative"
+            className="max-w-6xl w-full max-h-[90vh] relative flex flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             <button 
@@ -549,14 +562,14 @@ const ProjectsSection = () => {
             >
               <X size={32} />
             </button>
-            
-            <div className="relative aspect-video bg-gray-800 rounded-xl overflow-hidden">
+            {/* Center the image using flex and set max dimensions */}
+            <div className="flex items-center justify-center w-full h-[60vh] bg-gray-800 rounded-xl overflow-hidden">
               <ProjectImage
                 storageId={projects[currentProject].images[lightboxIndex]}
                 alt={projects[currentProject].title}
-                className="w-full h-full object-contain"
+                className="mx-auto my-auto max-w-full max-h-full"
+                objectFit="contain"
               />
-              
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -567,7 +580,6 @@ const ProjectsSection = () => {
               >
                 <MoveLeft size={28} />
               </button>
-              
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -578,12 +590,10 @@ const ProjectsSection = () => {
               >
                 <MoveRight size={28} />
               </button>
-              
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full">
                 {lightboxIndex + 1} / {projects[currentProject].images.length}
               </div>
             </div>
-            
             <div className="mt-4">
               <div className="flex gap-2 justify-center overflow-x-auto py-2 max-w-full">
                 {projects[currentProject].images.map((img, idx) => (
