@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, ChangeEvent, useEffect } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
@@ -152,7 +151,19 @@ const HeroForm = () => {
         cvFile: cvFileId,
       };
 
-      await saveContent({ data: submissionData });
+      const {
+        headingPart1, headingHighlight, headingPart2, headingPart3,
+        subtitle, projectsCount, yearsExperience, satisfaction, support,
+        role, roleDescription, backendSkills, frontendSkills, heroImage, cvFile
+      } = submissionData;
+
+      const cleanData = {
+        headingPart1, headingHighlight, headingPart2, headingPart3,
+        subtitle, projectsCount, yearsExperience, satisfaction, support,
+        role, roleDescription, backendSkills, frontendSkills, heroImage, cvFile
+      };
+
+      await saveContent({ data: cleanData });
 
       setSelectedFiles({ heroImage: null, cvFile: null });
       setPreviewImage(null);

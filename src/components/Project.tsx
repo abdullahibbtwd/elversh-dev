@@ -21,7 +21,7 @@ import { api } from '@/../convex/_generated/api';
 import type { Id } from '@/../convex/_generated/dataModel';
 import Image from 'next/image';
 
-// ProjectImage component for handling Convex storage images
+
 type ProjectImageProps = {
   storageId: Id<'_storage'>;
   alt?: string;
@@ -31,7 +31,7 @@ type ProjectImageProps = {
 const ProjectImage = ({ storageId, alt, className }: ProjectImageProps) => {
   const url = useQuery(api.files.getFileUrl, storageId ? { storageId } : 'skip');
   if (!url) return <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-full" />;
-  return <Image src={url} alt={alt} className={className} width={200} height={200} />;
+  return <Image src={url} alt="alt" className={className} width={200} height={200} />;
 };
 
 const ProjectsSection = () => {
