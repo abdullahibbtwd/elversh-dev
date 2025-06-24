@@ -559,13 +559,13 @@ const WorkExperienceDashboard = () => {
                                   <span>{calculateDuration(experience.startDate, experience.endDate)}</span>
                                 </div>
                                 
-                                <p className="mt-3 text-gray-700 dark:text-gray-300">
+                                <p className="mt-3 text-gray-700 dark:text-gray-300 whitespace-pre-line text-sm md:text-base">
                                   {experience.shortDescription}
                                 </p>
                                 
                                 <div className="mt-3">
                                   <p className="font-medium text-gray-900 dark:text-white">Long Description:</p>
-                                  <p className="text-gray-700 dark:text-gray-300">
+                                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line text-sm md:text-base">
                                     {experience.longDescription}
                                   </p>
                                 </div>

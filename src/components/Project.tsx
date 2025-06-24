@@ -58,7 +58,14 @@ const ProjectsSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isMdOrLarger, setIsMdOrLarger] = useState(true);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Add state for drag
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragScrollLeft, setDragScrollLeft] = useState<number>(0);
+  const [dragMoved, setDragMoved] = useState(false);
 
   // Fetch data from Convex
   const projects = useQuery(api.homePage.getProjects) || [];
@@ -117,6 +124,16 @@ const ProjectsSection = () => {
     };
   }, []);
 
+  // Effect to track window size and set isMdOrLarger
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMdOrLarger(window.innerWidth >= 768);
+    };
+    checkScreen();
+    window.addEventListener('resize', checkScreen);
+    return () => window.removeEventListener('resize', checkScreen);
+  }, []);
+
   // Carousel navigation functions
   const nextSlide = () => {
     if (isTransitioning || projects.length === 0) return;
@@ -170,44 +187,60 @@ const ProjectsSection = () => {
 
   // Auto-play functionality (optional - can be disabled)
   useEffect(() => {
-    if (projects.length <= 1 || !isAutoPlaying) return;
-    
+    if (projects.length <= 1 || !isAutoPlaying || !isMdOrLarger) return;
     const autoPlayInterval = setInterval(() => {
       if (!isTransitioning) {
         nextSlide();
       }
     }, 8000); // Change slide every 8 seconds
-
     return () => clearInterval(autoPlayInterval);
-  }, [projects.length, isTransitioning, isAutoPlaying]);
+  }, [projects.length, isTransitioning, isAutoPlaying, isMdOrLarger]);
 
   // Touch/swipe support for mobile
-  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
+  const handlePrimaryTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+    setDragMoved(false);
+  };
+  const handlePrimaryTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX !== null) {
+      if (Math.abs(e.targetTouches[0].clientX - touchStartX) > 10) setDragMoved(true);
+    }
+  };
+  const handlePrimaryTouchEnd = (e: React.TouchEvent, index: number, activeImage: number) => {
+    if (!dragMoved) openLightbox(index, activeImage);
+    setTouchStartX(null);
+    setDragMoved(false);
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    setDragMoved(false);
+    setIsDragging(true);
+    setDragStartX(e.targetTouches[0].clientX);
+    setDragScrollLeft(carouselRef.current?.scrollLeft || 0);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    if (!isDragging) return;
+    const x = e.targetTouches[0].clientX;
+    if (Math.abs(x - (dragStartX || 0)) > 10) setDragMoved(true);
+    if (carouselRef.current) {
+      carouselRef.current.scrollLeft = dragScrollLeft - (x - (dragStartX || 0));
+    }
   };
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsDragging(false);
+    setDragStartX(null);
+    setDragScrollLeft(0);
+  };
 
-    if (isLeftSwipe) {
-      nextSlide();
-    } else if (isRightSwipe) {
-      prevSlide();
-    }
-
-    setTouchStart(null);
-    setTouchEnd(null);
+  const handleThumbnailTouchEnd = (e: React.TouchEvent, imgIndex: number, index: number) => {
+    if (!dragMoved) setActiveImage(imgIndex);
+    setTouchStartX(null);
+    setDragMoved(false);
   };
 
   const toggleExpand = (index: number) => {
@@ -241,9 +274,13 @@ const ProjectsSection = () => {
     }
   };
 
-  // Set active image
-  const handleThumbnailClick = (index: number, projectIndex: number) => {
-    setActiveImage(index);
+  // For primary image click
+  const handlePrimaryImageClick = (index: number, activeImage: number) => {
+    if (!isDragging && !dragMoved) openLightbox(index, activeImage);
+  };
+  // For thumbnail click
+  const handleThumbnailClickSafe = (imgIndex: number, projectIndex: number) => {
+    if (!isDragging && !dragMoved) setActiveImage(imgIndex);
   };
 
   return (
@@ -272,9 +309,9 @@ const ProjectsSection = () => {
         {projects.length > 0 && (
           <div className="relative flex justify-center items-center flex-col ">
             {/* Carousel Container */}
-            <div 
+            <div
               ref={carouselRef}
-              className="relative overflow-hidden md:w-7/10 w-8/10  rounded-2xl"
+              className={`relative overflow-hidden w-full md:w-7/10 rounded-2xl ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none`}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -306,6 +343,9 @@ const ProjectsSection = () => {
                               isDark ? "border border-gray-800" : "border border-gray-200"
                             }`}
                             onClick={() => openLightbox(index, activeImage)}
+                            onTouchStart={handlePrimaryTouchStart}
+                            onTouchMove={handlePrimaryTouchMove}
+                            onTouchEnd={e => handlePrimaryTouchEnd(e, index, activeImage)}
                           >
                             <ProjectImage
                               storageId={project.images[activeImage]}
@@ -323,16 +363,19 @@ const ProjectsSection = () => {
                           {/* Thumbnail Gallery */}
                           <div className="mt-3">
                             <h4 className="font-medium mb-2 text-xs text-gray-500">More project images:</h4>
-                            <div className="flex gap-2 overflow-x-auto py-1">
+                            <div className="flex gap-2 overflow-x-auto py-1 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                               {project.images.map((img, imgIndex) => (
                                 <div 
                                   key={imgIndex}
-                                  className={`relative w-16 h-12 ml-1 rounded-md overflow-hidden cursor-pointer transition-all duration-300 ${
+                                  className={`relative w-16 min-w-16 h-12 rounded-md overflow-hidden cursor-pointer transition-all duration-300 ${
                                     imgIndex === activeImage 
                                       ? "ring-2 ring-blue-500 scale-105" 
                                       : "opacity-80 hover:opacity-100"
                                   }`}
-                                  onClick={() => handleThumbnailClick(imgIndex, index)}
+                                  onClick={() => setActiveImage(imgIndex)}
+                                  onTouchStart={handleTouchStart}
+                                  onTouchMove={handleTouchMove}
+                                  onTouchEnd={e => handleThumbnailTouchEnd(e, imgIndex, index)}
                                 >
                                   <ProjectImage
                                     storageId={img}
@@ -459,7 +502,7 @@ const ProjectsSection = () => {
                 <button
                   onClick={prevSlide}
                   disabled={isTransitioning}
-                  className={`absolute left-4 top-1/2 cursor-pointer -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
+                  className={`hidden md:block absolute left-4 top-1/2 cursor-pointer -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
                     isDark 
                       ? "bg-gray-800/80 hover:bg-gray-700/90 text-white" 
                       : "bg-gray-300  text-gray-800"
@@ -475,7 +518,7 @@ const ProjectsSection = () => {
                 <button
                   onClick={nextSlide}
                   disabled={isTransitioning}
-                  className={`absolute right-4 top-1/2 cursor-pointer -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
+                  className={`hidden md:block absolute right-4 top-1/2 cursor-pointer -translate-y-1/2 z-10 p-3 rounded-full transition-all duration-300 ${
                     isDark 
                       ? "bg-gray-800/80 hover:bg-gray-700/90 text-white" 
                       : "bg-gray-300  text-gray-800  text-gray-800"
