@@ -1,6 +1,7 @@
 "use client"
 import React, { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MessageCircle } from 'lucide-react';
 import { FaFacebook,FaWhatsappSquare,FaLinkedin  } from "react-icons/fa";
 import emailjs from '@emailjs/browser';
@@ -10,6 +11,8 @@ import { api } from "@/../convex/_generated/api";
 import Image from "next/image";
 
 import { useTheme } from '@/app/context/ThemeContext';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Add this interface above the Contact component
 interface ChatMessage {
@@ -93,7 +96,6 @@ const Contact = () => {
   }, [chatMessages, justSentMessage]);
 
   useEffect(() => {
-    // Initialize EmailJS
     emailjs.init(EMAILJS_PUBLIC_KEY);
 
     const tl = gsap.timeline({
@@ -103,31 +105,10 @@ const Contact = () => {
       }
     });
 
-    tl.from(".contact-heading", { 
-      duration: 0.8, 
-      y: 30, 
-      opacity: 0, 
-      ease: "power3.out" 
-    })
-    .from(".contact-subtitle", { 
-      duration: 0.8, 
-      y: 30, 
-      opacity: 0, 
-      ease: "power3.out" 
-    }, "-=0.5")
-    .from(".contact-form", { 
-      duration: 1, 
-      y: 30, 
-      opacity: 0, 
-      ease: "power3.out" 
-    }, "-=0.3")
-    .from(".social-card", { 
-      duration: 0.8, 
-      y: 30, 
-      opacity: 0, 
-      stagger: 0.1, 
-      ease: "power3.out" 
-    }, "-=0.5");
+    tl.fromTo(".contact-heading", { y: 30, opacity: 0 }, { duration: 0.8, y: 0, opacity: 1, ease: "power3.out" })
+      .fromTo(".contact-subtitle", { y: 30, opacity: 0 }, { duration: 0.8, y: 0, opacity: 1, ease: "power3.out" }, "-=0.5")
+      .fromTo(".contact-form", { y: 30, opacity: 0 }, { duration: 1, y: 0, opacity: 1, ease: "power3.out" }, "-=0.3")
+      .fromTo(".social-card", { y: 30, opacity: 0 }, { duration: 0.8, y: 0, opacity: 1, stagger: 0.1, ease: "power3.out" }, "-=0.5");
 
     // Floating blob animations
     gsap.to(".contact-blob-purple", {
@@ -147,6 +128,8 @@ const Contact = () => {
       yoyo: true,
       ease: "sine.inOut"
     });
+
+    ScrollTrigger.refresh();
   }, [EMAILJS_PUBLIC_KEY]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

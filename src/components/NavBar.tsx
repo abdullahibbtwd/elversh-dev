@@ -1,14 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import { useTheme } from "@/app/context/ThemeContext";
-
 import { usePathname } from "next/navigation";
+import gsap from "gsap";
 
 const Navbar = () => {
-  const { isDark, toggleTheme, router } = useTheme();
+  const { isDark, toggleTheme, router, isLoading } = useTheme();
   const navRef = useRef(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -19,99 +18,10 @@ const Navbar = () => {
     { name: "Services", href: "#services" },
     { name: "Skills", href: "#skills" },
     { name: "Project", href: "#projects" },
-    { name: "Experience", href: "#experience" }, // Corrected typo
+    { name: "Experience", href: "#experience" }, 
     { name: "Education", href: "#education" },
   ];
 
-  useEffect(() => {
-    // Navbar entrance animation
-    gsap.from(navRef.current, {
-      duration: 0.8,
-      y: 0,
-      opacity: 1,
-      ease: "power3.out",
-    });
-
-    // Link animations
-    // gsap.from(".nav-link", {
-    //   duration: 0.6,
-    //   y: 0,
-    //   opacity: 1,
-    //   stagger: 0.1,
-    //   delay: 0.3,
-    //   ease: "power3.out",
-    // });
-
-    // Theme button animation
-    gsap.from(".theme-btn", {
-      duration: 0.7,
-      opacity: 1,
-      scale: 0.8,
-      delay: 0.8,
-      ease: "elastic.out(1, 0.8)",
-    });
-
-    // Contact button animation
-    gsap.from(".contact-btn", {
-      duration: 0.7,
-      opacity: 1,
-      x: 0,
-      delay: 0.9,
-      ease: "power3.out",
-    });
-  }, []);
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash) {
-        const element = document.getElementById(hash.substring(1)); // Remove '#'
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      }
-    };
-
-    // Listen for hash changes (e.g., when router.push('/#contact') is called)
-    window.addEventListener("hashchange", handleHashChange);
-
-    // Also run on initial mount if a hash is present in the URL
-    handleHashChange();
-
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-    };
-  }, [pathname]);
-  useEffect(() => {
-    if (isMenuOpen) {
-      // Mobile menu animation
-      gsap.from(".mobile-menu-item", {
-        duration: 0.5,
-        x: -3,
-        opacity: 1,
-        stagger: 0.1,
-        ease: "power2.out",
-      });
-    }
-  }, [isMenuOpen]);
-
-  const handleHover = (e: any) => {
-    gsap.to(e.target, {
-      duration: 0.3,
-      scale: 1.05,
-
-      ease: "power2.out",
-    });
-  };
-
-  const handleHoverOut = (e: any) => {
-    gsap.to(e.target, {
-      duration: 0.3,
-      scale: 1,
-
-      ease: "power2.out",
-    });
-  };
   const handleContactClick = () => {
     setIsMenuOpen(false); // Close the mobile menu
 
@@ -125,55 +35,51 @@ const Navbar = () => {
       router.push("/#contact");
     }
   };
-    const scrollToHash = (hash: string) => {
-      if (hash && hash.startsWith("#")) {
-        const elementId = hash.substring(1);
-        const element = document.getElementById(elementId);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-          if (window.history.pushState) {
-            window.history.pushState(null, "", hash);
-          } else {
-            window.location.hash = hash;
-          }
+
+  const scrollToHash = (hash: string) => {
+    if (hash && hash.startsWith("#")) {
+      const elementId = hash.substring(1);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        if (window.history.pushState) {
+          window.history.pushState(null, "", hash);
+        } else {
+          window.location.hash = hash;
         }
       }
-    };
-  
-    useEffect(() => {
-      const handleHashChange = () => {
-        const hash = window.location.hash;
-        if (hash) {
-          const element = document.getElementById(hash.substring(1)); // Remove '#'
-          if (element) {
-            element.scrollIntoView({ behavior: "smooth" });
-          }
-        }
-      };
-  
-      window.addEventListener("hashchange", handleHashChange);
-  
-      handleHashChange();
-  
-      return () => {
-        window.removeEventListener("hashchange", handleHashChange);
-      };
-    }, [pathname]);
+    }
+  };
  
+  useEffect(() => {
+
+    if (isLoading) return;
+    gsap.fromTo(
+      ".navbar-child",
+      { y: -20, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out"
+      }
+    );
+  }, [isLoading]);
 
   return (
     <>
       {/* Desktop Navbar */}
       <nav
         ref={navRef}
-        className={`navbar fixed top-0 w-full z-50 backdrop-blur-sm transition-all duration-300 ${
+        className={`fixed top-0 w-full z-50 backdrop-blur-sm transition-all duration-300 ${
           isDark
             ? "bg-[#121212] border-gray-800"
             : "bg-gradient-to-br from-blue-50 to-purple-50 border-gray-200"
         } border-b py-4 px-4 sm:px-6 lg:px-8`}
       >
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center">
+          <div className="flex items-center navbar-child">
             <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mr-2">
               <span className="text-white font-bold text-lg">EV</span>
             </div>
@@ -186,16 +92,13 @@ const Navbar = () => {
             />
           </div>
 
-          <div className="hidden md:flex space-x-8 items-center">
+          <div className="hidden md:flex space-x-8 items-center navbar-child">
             {navItems.map((item, index) => (
               <a
                 key={index}
-                //href={item.href}
-                className={`nav-link cursor-pointer font-medium transition-all ${
+                className={`cursor-pointer font-medium transition-all ${
                   isDark ? "text-gray-300" : "text-gray-700"
                 }`}
-                onMouseEnter={handleHover}
-                onMouseLeave={handleHoverOut}
                 onClick={()=> {if(pathname === "/"){scrollToHash(item.href)}else{router.push(`/$`)}}}
               >
                 {item.name}
@@ -203,7 +106,7 @@ const Navbar = () => {
             ))}
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 navbar-child">
             <button
               onClick={toggleTheme}
               className={`theme-btn p-2 rounded-full ${
@@ -232,22 +135,6 @@ const Navbar = () => {
 
             <button
               className="contact-btn hidden md:block px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium hover:opacity-90 transition-opacity shadow-lg shadow-blue-500/20"
-              onMouseEnter={(e) =>
-                gsap.to(e.target, {
-                  duration: 0.3,
-                  scale: 1.05,
-                  boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.4)",
-                  ease: "power2.out",
-                })
-              }
-              onMouseLeave={(e) =>
-                gsap.to(e.target, {
-                  duration: 0.3,
-                  scale: 1,
-                  boxShadow: "0 4px 6px -1px rgba(59, 130, 246, 0.2)",
-                  ease: "power2.out",
-                })
-              }
               onClick={handleContactClick}
             >
               Contact Me

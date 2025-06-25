@@ -45,6 +45,25 @@ const ProjectImage = ({ storageId, alt, className, objectFit = 'cover' }: Projec
   );
 };
 
+const URL_REGEX = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+
+function Text({ content, className = "" }: { content: string, className?: string }) {
+  const words = content.split(" ");
+  return (
+    <span className={`whitespace-pre-line break-words text-xs md:text-[16px]  tracking-tight ${className}`}>
+      {words.map((word: string, index: number) => {
+        return word.match(URL_REGEX) ? (
+          <a key={index} className="text-blue-900" href={word}>
+            {word}
+          </a>
+        ) : (
+          word + " "
+        );
+      })}
+    </span>
+  );
+}
+
 const ProjectsSection = () => {
   const projectsRef = useRef(null);
   const { isDark } = useTheme();
@@ -434,9 +453,10 @@ const ProjectsSection = () => {
                             </div>
                           </div>
                           
-                          <p className={`mb-3 text-base ${isDark ? "text-gray-300" : "text-gray-600"}`}>
-                            {expandedProject === index ? project.longDescription : project.shortDescription}
-                          </p>
+                          <Text
+                            content={expandedProject === index ? project.longDescription : project.shortDescription}
+                            className={`mb-3  ${isDark ? "text-gray-300" : "text-gray-600"}`}
+                          />
                           
                           <button 
                             onClick={() => toggleExpand(index)}

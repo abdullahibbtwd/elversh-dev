@@ -1,5 +1,6 @@
 import "./globals.css";
 import AppProviders from "./AppProviders";
+import GlobalLoader from "../components/GlobalLoader";
 import React from "react";
 
 export const metadata = {
@@ -41,10 +42,11 @@ export default function RootLayout({
       </head>
       <body>
         <AppProviders>
-          <div className="w-full overflow-x-hidden flex-col">
-         
-            {children}
-          </div>
+          <GlobalLoader>
+            <div className="w-full overflow-x-hidden flex-col">
+              {children}
+            </div>
+          </GlobalLoader>
         </AppProviders>
       </body>
     </html>

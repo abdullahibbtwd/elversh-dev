@@ -6,13 +6,12 @@ import { ChevronDown, ChevronUp, Briefcase, Calendar, ExternalLink } from 'lucid
 import { useQuery } from 'convex/react';
 import { api } from '@/../convex/_generated/api';
 
-const URL_REGEX =
-  /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+const URL_REGEX = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi;
 
 function Text({ content, className = "" }: { content: string, className?: string }) {
   const words = content.split(" ");
   return (
-    <pre className={`pre ${className}`}>
+    <span className={`whitespace-pre-line break-words text-xs md:text-md  tracking-tight ${className}`}>
       {words.map((word: string, index: number) => {
         return word.match(URL_REGEX) ? (
           <a key={index} className="text-blue-900" href={word}>
@@ -22,7 +21,7 @@ function Text({ content, className = "" }: { content: string, className?: string
           word + " "
         );
       })}
-    </pre>
+    </span>
   );
 }
 const ExperienceSection = () => {

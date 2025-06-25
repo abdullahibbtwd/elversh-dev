@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
@@ -8,14 +7,16 @@ import { usePathname } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Image from 'next/image';
+import { FaSpinner } from "react-icons/fa";
 
 const Hero = () => {
   const heroRef = useRef(null);
-  const { isDark, router } = useTheme();
+  const { isDark, router, isLoading } = useTheme();
   const pathname = usePathname();
 
-  const Hompage = useQuery(api.homePage.getHomePageContent)
-    const cvUrl = useQuery(
+  const Hompage = useQuery(api.homePage.getHomePageContent);
+
+  const cvUrl = useQuery(
     api.files.getFileUrl, 
     Hompage?.cvFile ? { storageId: Hompage.cvFile } : "skip"
   );
@@ -34,6 +35,7 @@ const Hero = () => {
 
 
   useEffect(() => {
+    if (isLoading) return;
 
     const tl = gsap.timeline();
     tl.from(".navbar", {
@@ -42,38 +44,10 @@ const Hero = () => {
       opacity: 0,
       ease: "power3.out",
     })
-      .from(
-        ".hero-heading",
-        { duration: 1, y: 30, opacity: 0, ease: "power3.out" },
-        0.3
-      )
-      .from(
-        ".hero-subtitle",
-        { duration: 1, y: 30, opacity: 0, ease: "power3.out" },
-        0.5
-      )
-      .from(
-        ".hero-buttons button",
-        {
-          duration: 1,
-          y: 30,
-          opacity: 0,
-          stagger: 0.1,
-          ease: "power3.out",
-        },
-        0.7
-      )
-      .from(
-        ".stats-grid > div",
-        {
-          duration: 1,
-          y: 30,
-          opacity: 0,
-          stagger: 0.1,
-          ease: "power3.out",
-        },
-        0.9
-      )
+      .fromTo(".hero-heading", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, 0.3)
+      .fromTo(".hero-subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, 0.5)
+      .fromTo(".hero-buttons button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, 0.7)
+      .fromTo(".stats-grid > div", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, 0.9)
       .to(
         ".developer-illustration",
         {
@@ -113,7 +87,7 @@ const Hero = () => {
       yoyo: true,
       ease: "sine.inOut",
     });
-  }, []);
+  }, [isLoading]);
 
   const scrollToHash = (hash: string) => {
     if (hash && hash.startsWith("#")) {
@@ -169,12 +143,26 @@ const Hero = () => {
           : "bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800"
       }`}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-[#121212]/80">
+          <Image
+            src="/elversh.png"
+            alt="Logo"
+            width={96}
+            height={96}
+            className="w-24 h-24 mb-6 animate-bounce"
+            priority
+          />
+          <FaSpinner className="animate-spin text-blue-500 text-4xl" />
+        </div>
+      )}
       {/* Hero Section */}
+      {!isLoading && (
       <div className="max-w-7xl mt-10 md:mt-0 px-4 sm:px-6 lg:px-8 py-12 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
           <div>
-            <h1 className="hero-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <h1 className="hero-heading opacity-0 text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
               Building <span className="text-blue-500">Impactful</span>
               <br />
               Digital Experience
@@ -182,14 +170,14 @@ const Hero = () => {
               for the web.
             </h1>
 
-            <p className="hero-subtitle mt-6 text-lg max-w-2xl">
+            <p className="hero-subtitle opacity-0 mt-6 text-lg max-w-2xl">
             From concept to deployment, I bring together innovation, strategy, and technology to create impactful web applications that solve real-world problems.
             </p>
 
-            <div className="hero-buttons  mt-8 flex flex-wrap gap-4">
+            <div className="hero-buttons mt-8 flex flex-wrap gap-4">
               <button
                 onClick={handleProjectClick}
-                className="px-6 py-3 cursor-pointer hover:scale-105  bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
+                className="px-6 py-3 cursor-pointer hover:scale-105  bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20 opacity-0"
               >
                 View Projects
               </button>
@@ -199,13 +187,13 @@ const Hero = () => {
                   isDark
                     ? "bg-gray-800 border border-gray-700 hover:bg-gray-700"
                     : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-300 hover:bg-gray-40"
-                }`}
+                } opacity-0`}
               >
                 Download CV
               </button>
             </div>
 
-            <div className="stats-grid mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="stats-grid mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div
                 className={`p-4 rounded-lg shadow-sm ${
                   isDark
@@ -345,6 +333,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };

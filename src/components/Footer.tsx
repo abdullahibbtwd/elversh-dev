@@ -1,25 +1,32 @@
 "use client"
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { FaFacebook,FaWhatsappSquare,FaLinkedin,FaGithubSquare  } from "react-icons/fa";
 import { useTheme } from '@/app/context/ThemeContext';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+gsap.registerPlugin(ScrollTrigger);
 
 const Footer = () => {
   const { isDark,router } = useTheme();
+  const footerRef = useRef(null);
 
   useEffect(() => {
     // Animate elements on load
-    gsap.from(".footer-item", {
-      duration: 0.8,
-      y: 20,
-      opacity: 0,
-      stagger: 0.1,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: "footer",
-        start: "top 90%"
+    gsap.fromTo(
+      ".footer-item",
+      { y: 20, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: footerRef.current,
+          start: "top 90%",
+        }
       }
-    });
+    );
     
     
     gsap.to(".footer-blob", {
@@ -32,7 +39,7 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className={`relative overflow-hidden py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
+    <footer ref={footerRef} className={`relative overflow-hidden py-16 px-4 sm:px-6 lg:px-8 transition-colors duration-300 ${
       isDark 
         ? "bg-[#0d0d0d] text-gray-300" 
         : "bg-gradient-to-br from-blue-50 to-purple-50 text-gray-700"
