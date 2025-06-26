@@ -78,7 +78,7 @@ const Navbar = () => {
             : "bg-gradient-to-br from-blue-50 to-purple-50 border-gray-200"
         } border-b py-4 px-4 sm:px-6 lg:px-8`}
       >
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="w-full max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center navbar-child">
             <div className="h-10 w-10 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mr-2">
               <span className="text-white font-bold text-lg">EV</span>

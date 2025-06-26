@@ -100,4 +100,8 @@ export default defineSchema({
     fromName: v.string(),
     fromImage: v.optional(v.string()),
   }),
+  pushSubscriptions: defineTable({
+    userId: v.string(),
+    subscription: v.any(),
+  }),
 });

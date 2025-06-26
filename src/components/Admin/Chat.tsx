@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery, useAction } from "convex/react";
 import { api } from "@/../convex/_generated/api";
 
 const NAME = "admin";
@@ -22,6 +22,7 @@ const Chat = () => {
   const [showUserList, setShowUserList] = useState(false); // for mobile
   const [chatInput, setChatInput] = useState("");
   const sendMessage = useMutation(api.chat.sendMessage);
+  const sendPush = useAction(api.pushActions.sendPushToUserAction);
 
   // Fetch all users
   const users = useQuery(api.users.getAllUsers);
@@ -57,7 +58,13 @@ const Chat = () => {
       to: selectedUser,
       message: chatInput,
       fromName: "Admin",
-     
+    });
+   
+    await sendPush({
+      userId: selectedUser,
+      title: "New message from Elversh",
+      body: chatInput,
+      url: "/" 
     });
     setChatInput("");
   };

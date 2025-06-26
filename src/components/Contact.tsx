@@ -53,6 +53,7 @@ const Contact = () => {
   const sendMessageMutation = useMutation(api.chat.sendMessage);
   const [chatUserId, setChatUserId] = useState<string | null>(null);
   const [chatLoading, setChatLoading] = useState(false);
+  const savePushSubscription = useMutation(api.chat.savePushSubscription);
 
   // Fetch chat history when chat modal opens and user is loaded
   const chatHistory = useQuery(
@@ -87,7 +88,7 @@ const Contact = () => {
     }
   }, [chatHistory]);
 
-  // Scroll to bottom only after user sends a message
+
   useEffect(() => {
     if (justSentMessage && chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
@@ -253,6 +254,71 @@ const Contact = () => {
     }
   };
 
+
+  function urlBase64ToUint8Array(base64String: string) {
+    base64String = base64String.trim();
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  async function subscribeUserToPush() {
+    
+    if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) {
+      console.error('VAPID_PUBLIC_KEY is undefined!');
+      return;
+    }
+    if ('serviceWorker' in navigator && 'PushManager' in window && isSignedIn && user) {
+      
+      const reg = await navigator.serviceWorker.ready;
+      const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!VAPID_PUBLIC_KEY) {
+        
+        return;
+      }
+      let subscription = await reg.pushManager.getSubscription();
+      if (!subscription) {
+        try {
+          subscription = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          });
+          
+        } catch (err) {
+          console.error('Push subscription failed:', err, VAPID_PUBLIC_KEY);
+          return;
+        }
+      } else {
+        console.log('Existing push subscription found:', subscription);
+      }
+      try {
+        await savePushSubscription({
+          userId: user.id,
+          subscription: subscription.toJSON(),
+        });
+        console.log('Push subscription saved to Convex');
+      } catch (err) {
+        console.error('Failed to save push subscription:', err);
+      }
+    } else {
+      console.log('Not subscribing: missing serviceWorker, PushManager, isSignedIn, or user', {
+        isSignedIn, user
+      });
+    }
+  }
+  useEffect(() => {
+    if (isChatOpen && isSignedIn) {
+      subscribeUserToPush();
+    }
+  }, [isChatOpen, isSignedIn]);
+
+
+
   return (
     <div 
       ref={contactRef}
@@ -310,7 +376,7 @@ const Contact = () => {
                         <span>{msg.text}</span>
                       </div>
                       <div className="text-xs text-gray-400 mt-1">
-                        {msg.fromName && <span>{msg.fromName}</span>}
+                        <span>{msg.sender === 'bot' ? 'Elversh dev' : msg.fromName}</span>
                         {msg.timestamp && (
                           <span> • {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         )}
