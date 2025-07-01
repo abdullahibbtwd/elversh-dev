@@ -46,7 +46,7 @@ const ExperienceSection = () => {
     return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
   };
 
-  // Calculate duration in years/months
+
   const calculateDuration = (start: string, end: string | null) => {
     const startDate = new Date(start);
     const endDate = end ? new Date(end) : new Date();
@@ -164,6 +164,8 @@ const ExperienceSection = () => {
               </div>
             ) : (
               workExperiences.map((experience, index) => (
+                <>
+             
                 <div 
                   key={index}
                   className={`experience-card w-9/10 md:w-7/10 rounded-2xl overflow-hidden transition-all duration-300 ${ 
@@ -173,6 +175,7 @@ const ExperienceSection = () => {
                   }`}
                 >
                   {/* Timeline Dot */}
+                  
                   <div className={`absolute -left-[30px] top-6 w-6 h-6 rounded-full flex items-center justify-center ${
                     isDark ? "bg-gray-900 border-2 border-blue-500" : "bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-500"
                   } z-10`}>
@@ -293,6 +296,8 @@ const ExperienceSection = () => {
                     </div>
                   </div>
                 </div>
+                </>
+                  
               ))
             )}
           </div>

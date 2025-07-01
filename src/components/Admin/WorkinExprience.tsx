@@ -222,6 +222,10 @@ const WorkExperienceDashboard = () => {
     return `${years > 0 ? `${years} yr${years > 1 ? 's' : ''} ` : ''}${remainingMonths > 0 ? `${remainingMonths} mo${remainingMonths > 1 ? 's' : ''}` : ''}`;
   };
 
+  const uniqueSkills = Array.from(
+    new Map(skills.map(skill => [skill.name, skill])).values()
+  );
+
   return (
     <div className="h-full dark:bg-gradient-to-br dark:from-gray-950 dark:to-gray-950bg-gradient-to-br from-indigo-50 dark:bg-gray-800 text-gray-900 dark:text-white p-6 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
@@ -408,7 +412,7 @@ const WorkExperienceDashboard = () => {
                     <div className="space-y-2 mt-2">
                       {newWorkExperience.technologies.map((tech, index) => (
                         tech && (
-                          <div key={index} className="flex items-center gap-2">
+                          <div key={`${tech}-${index}`} className="flex items-center gap-2">
                             <Input
                               value={tech}
                               onChange={(e) => {
@@ -442,8 +446,8 @@ const WorkExperienceDashboard = () => {
                             <SelectValue placeholder="Select skill" />
                           </SelectTrigger>
                           <SelectContent>
-                            {skills.map((skill) => (
-                              <SelectItem key={skill.name} value={skill.name}>
+                            {uniqueSkills.map((skill) => (
+                              <SelectItem key={skill._id} value={skill.name}>
                                 {skill.name}
                               </SelectItem>
                             ))}
@@ -591,7 +595,7 @@ const WorkExperienceDashboard = () => {
                                         const skillImage = getSkillImage(tech);
                                         return (
                                           <Badge 
-                                            key={idx}
+                                            key={`${tech}-${idx}`}
                                             variant="outline"
                                             className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 flex items-center gap-1"
                                           >
