@@ -46,9 +46,7 @@ const Chat = () => {
   const allChats = useQuery(api.chat.getAllChats);
   const uniqueUserIds = users?.map(u => u.clerkUserId) ?? [];
 
-  console.log('allChats:', allChats);
-  console.log('uniqueUserIds:', uniqueUserIds);
-  console.log('userMap:', userMap);
+
   
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
