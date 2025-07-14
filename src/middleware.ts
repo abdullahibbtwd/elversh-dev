@@ -4,12 +4,10 @@ import { clerkMiddleware } from "@clerk/nextjs/server";
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
   const url = req.nextUrl;
- console.log("userId:", userId);
-  console.log("sessionClaims:", sessionClaims);
  
  
   const role = (sessionClaims?.metadata as { role?: string })?.role;
-  console.log("role:", role);
+
   // Block unauthenticated users from /admin
   if (!userId && url.pathname.startsWith("/admin")) {
     return NextResponse.redirect(new URL("/", req.url));
