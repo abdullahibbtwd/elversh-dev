@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+          {
+      protocol: 'https',
+      hostname: 'blissful-pigeon-291.convex.cloud',
+      port: '',
+      pathname: '/**',
+    },
     ],
   },
   eslint: {
