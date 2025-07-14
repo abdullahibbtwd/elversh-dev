@@ -1,9 +1,9 @@
 import { MetadataRoute } from "next";
 
-export default async function sitemap():Promise<MetadataRoute.Sitemap> {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     {
-        url: "https://elversh-dev.vercel.app/",
+        url: "https://elvershdev.com/",
         lastModified: new Date(),
         changeFrequency: "monthly",
         priority: 1,

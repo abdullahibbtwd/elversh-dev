@@ -39,6 +39,21 @@ export default function RootLayout({
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content="/opengraph-image.png" />
         <meta name="google-site-verification" content="3nuDCGxo22EY8Xi0BCH2ayENBVqVcJVBP_y8sooXtA4" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "name": "Elversh Dev",
+              "url": "https://elvershdev.com",
+              "description": "Showcasing the work of Elversh, a passionate full stack web developer specializing in building modern, scalable, and high-performance web applications with Next.js, React, Node.js, and the latest technologies.",
+              "sameAs": [
+                // Add your social links here if you have them
+              ]
+            }),
+          }}
+        />
       </head>
       <body>
         <AppProviders>
