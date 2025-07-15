@@ -3,7 +3,8 @@ import AppProviders from "./AppProviders";
 import GlobalLoader from "../components/GlobalLoader";
 import React from "react";
 import { SpeedInsights } from '@vercel/speed-insights/next';
- 
+import { Analytics } from '@vercel/analytics/next';
+
 export const metadata = {
   title: "Elversh Dev",
   description: "Showcasing the work of Elversh, a passionate full stack web developer specializing in building modern, scalable, and high-performance web applications with Next.js, React, Node.js, and the latest technologies. Explore projects, skills, and real-time chat—all crafted with a focus on user experience and robust engineering.",
@@ -62,6 +63,7 @@ export default function RootLayout({
             <div className="w-full overflow-x-hidden flex-col">
               {children}
               <SpeedInsights />
+              <Analytics/>
             </div>
           </GlobalLoader>
         </AppProviders>
