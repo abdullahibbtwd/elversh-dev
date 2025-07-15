@@ -5,7 +5,7 @@ export default function Head() {
       <meta name="description" content="Full Stack Webssite developer" />
       
       {}
-      <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
       {}
       <link rel="alternate icon" href="/favicon.ico" />
