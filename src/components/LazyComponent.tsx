@@ -1,23 +1,62 @@
 "use client";
-import React, { Suspense, lazy } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface LazyComponentProps {
-  component: React.ComponentType<any>;
+  children: React.ReactNode;
+  threshold?: number;
+  rootMargin?: string;
   fallback?: React.ReactNode;
-  props?: any;
+  className?: string;
 }
 
-const LazyComponent: React.FC<LazyComponentProps> = ({ 
-  component: Component, 
-  fallback = <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-64 rounded-lg" />,
-  props = {}
+const LazyComponent: React.FC<LazyComponentProps> = ({
+  children,
+  threshold = 0.1,
+  rootMargin = '50px',
+  fallback = <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-32" />,
+  className = ''
 }) => {
-  const LazyComponent = lazy(() => Promise.resolve({ default: Component }));
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          // Add a small delay to ensure smooth loading
+          setTimeout(() => setHasLoaded(true), 100);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold,
+        rootMargin,
+      }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [threshold, rootMargin]);
 
   return (
-    <Suspense fallback={fallback}>
-      <LazyComponent {...props} />
-    </Suspense>
+    <div ref={ref} className={className}>
+      {!hasLoaded ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          {fallback}
+        </div>
+      ) : (
+        <div className={`transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+          {children}
+        </div>
+      )}
+    </div>
   );
 };
 

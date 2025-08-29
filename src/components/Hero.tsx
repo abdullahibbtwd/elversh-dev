@@ -52,58 +52,21 @@ const Hero = () => {
     document.body.removeChild(link);
   };
 
+  // Simplified animation with CSS instead of GSAP
   useEffect(() => {
     if (animationsLoaded) return;
 
-    // Lazy load GSAP only when needed
-    const loadAnimations = async () => {
-      const { gsap } = await import('gsap');
-      
-      const tl = gsap.timeline();
-      tl.from(".navbar", {
-        duration: 0.6,
-        y: -30,
-        opacity: 0,
-        ease: "power2.out",
-      })
-        .fromTo(".hero-heading", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 0.2)
-        .fromTo(".hero-subtitle", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 0.4)
-        .fromTo(".hero-buttons button", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" }, 0.6)
-        .fromTo(".stats-grid > div", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.05, ease: "power2.out" }, 0.8);
-
-      // Simplified floating animation
-      gsap.to(".developer-illustration", {
-        y: 8,
-        duration: 4,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
+    // Use CSS animations instead of GSAP for better performance
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.hero-heading, .hero-subtitle, .hero-buttons button, .stats-grid > div');
+      elements.forEach((el, index) => {
+        setTimeout(() => {
+          el.classList.add('animate-fade-in');
+        }, index * 100);
       });
-
-      // Reduced blob animations
-      gsap.to(".blob-purple", {
-        x: 15,
-        y: -15,
-        duration: 10,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-
-      gsap.to(".blob-blue", {
-        x: -10,
-        y: 10,
-        duration: 12,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-
       setAnimationsLoaded(true);
-    };
+    }, 100);
 
-    // Delay animation loading to prioritize content rendering
-    const timer = setTimeout(loadAnimations, 100);
     return () => clearTimeout(timer);
   }, [animationsLoaded]);
 
@@ -165,7 +128,7 @@ const Hero = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div>
-              <h1 className="hero-heading opacity-0 text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+              <h1 className="hero-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight opacity-0">
                 Building <span className="text-blue-500">Impactful</span>
                 <br />
                 Digital Experience
@@ -173,7 +136,7 @@ const Hero = () => {
                 for the web.
               </h1>
 
-              <p className="hero-subtitle opacity-0 mt-6 text-lg max-w-2xl">
+              <p className="hero-subtitle mt-6 text-lg max-w-2xl opacity-0">
                 From concept to deployment, I bring together innovation, strategy, and technology to create impactful web applications that solve real-world problems.
               </p>
 
@@ -202,7 +165,7 @@ const Hero = () => {
                     isDark 
                       ? "bg-gray-800 hover:bg-gray-700" 
                       : "bg-gradient-to-br from-blue-50 to-purple-50 hover:bg-gray-100"
-                  } shadow-md hover:shadow-lg items-center justify-center flex transform hover:-translate-y-1`}
+                  } shadow-md hover:shadow-lg items-center justify-center flex transform hover:-translate-y-1 opacity-0`}
                 >
                   <FaGithubSquare size={25} />
                 </a>
@@ -210,7 +173,7 @@ const Hero = () => {
 
               <div className="stats-grid mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div
-                  className={`p-4 rounded-lg shadow-sm ${
+                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
@@ -220,17 +183,17 @@ const Hero = () => {
                   <div className="text-sm">Projects</div>
                 </div>
                 <div
-                  className={`p-4 rounded-lg shadow-sm ${
+                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
                   }`}
                 >
-                  <div className="text-2xl font-bold text-">{displayData.yearsExperience}</div>
+                  <div className="text-2xl font-bold text-blue-500">{displayData.yearsExperience}</div>
                   <div className="text-sm">Years</div>
                 </div>
                 <div
-                  className={`p-4 rounded-lg shadow-sm ${
+                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
@@ -240,7 +203,7 @@ const Hero = () => {
                   <div className="text-sm">Satisfaction</div>
                 </div>
                 <div
-                  className={`p-4 rounded-lg shadow-sm ${
+                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
@@ -255,12 +218,12 @@ const Hero = () => {
             {/* Right Content - Developer Illustration */}
             <div className="relative">
               <div className="relative w-full max-w-lg mx-auto">
-                {/* Animated Blobs */}
-                <div className="blob-purple absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 dark:opacity-15" />
-                <div className="blob-blue absolute top-0 -right-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 dark:opacity-15" />
+                {/* Simplified static blobs instead of animated ones */}
+                <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 dark:opacity-15" />
+                <div className="absolute top-0 -right-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 dark:opacity-15" />
 
                 {/* Developer Illustration */}
-                <div className="developer-illustration relative rounded-2xl overflow-hidden border-8 border-white dark:border-gray-800 shadow-2xl">
+                <div className="relative rounded-2xl overflow-hidden border-8 border-white dark:border-gray-800 shadow-2xl">
                   <div
                     className={`h-96 flex items-center justify-center ${
                       isDark
@@ -359,6 +322,23 @@ const Hero = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.6s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };
