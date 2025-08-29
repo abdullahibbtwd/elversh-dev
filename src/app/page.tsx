@@ -15,12 +15,24 @@ const Home = () => {
     <div className='overflow-x-hidden'>
       <Hero/>
       <AboutMeSection/>
-      <LazyComponent component={ServicesSection} />
-      <LazyComponent component={SkillsSection} />
-      <LazyComponent component={ProjectsSection} />
-      <LazyComponent component={ExperienceSection} />
-      <LazyComponent component={EducationSection} />
-      <LazyComponent component={Contact} />
+      <LazyComponent>
+        <ServicesSection />
+      </LazyComponent>
+      <LazyComponent>
+        <SkillsSection />
+      </LazyComponent>
+      <LazyComponent>
+        <ProjectsSection />
+      </LazyComponent>
+      <LazyComponent>
+        <ExperienceSection />
+      </LazyComponent>
+      <LazyComponent>
+        <EducationSection />
+      </LazyComponent>
+      <LazyComponent>
+        <Contact />
+      </LazyComponent>
       <Footer/>
     </div>
   )
