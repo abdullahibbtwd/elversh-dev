@@ -7,6 +7,7 @@ import Hero from '@/components/Hero'
 import ProjectsSection from '@/components/Project'
 import ServicesSection from '@/components/Sevices'
 import SkillsSection from '@/components/Skills'
+import LazyComponent from '@/components/LazyComponent'
 import React from 'react'
 
 const Home = () => {
@@ -14,12 +15,12 @@ const Home = () => {
     <div className='overflow-x-hidden'>
       <Hero/>
       <AboutMeSection/>
-      <ServicesSection/>
-      <SkillsSection/>
-      <ProjectsSection/>
-      <ExperienceSection/>
-      <EducationSection/>
-      <Contact/>
+      <LazyComponent component={ServicesSection} />
+      <LazyComponent component={SkillsSection} />
+      <LazyComponent component={ProjectsSection} />
+      <LazyComponent component={ExperienceSection} />
+      <LazyComponent component={EducationSection} />
+      <LazyComponent component={Contact} />
       <Footer/>
     </div>
   )

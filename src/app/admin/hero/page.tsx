@@ -1,14 +1,25 @@
+"use client"
+import React, { useState, useEffect } from 'react'
 
+export default function Page() {
+  const [isClient, setIsClient] = useState(false)
 
-import HeroForm from '@/components/Admin/HeroForm'
-import React from 'react'
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
-const page = () => {
+  if (!isClient) {
+    return <div>Loading...</div>
+  }
+
+  // Dynamic import only on client side
+  const HeroForm = React.lazy(() => import('@/components/Admin/HeroForm'))
+
   return (
     <div>
-      <HeroForm/>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        <HeroForm />
+      </React.Suspense>
     </div>
   )
 }
-
-export default page

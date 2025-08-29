@@ -1,6 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
-import gsap from "gsap";
+import React, { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/app/context/ThemeContext";
 import { LaptopMinimal, ServerCog } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -13,6 +12,7 @@ const Hero = () => {
   const heroRef = useRef(null);
   const { isDark, router, isLoading } = useTheme();
   const pathname = usePathname();
+  const [animationsLoaded, setAnimationsLoaded] = useState(false);
 
   const Hompage = useQuery(api.homePage.getHomePageContent);
 
@@ -20,10 +20,10 @@ const Hero = () => {
     api.files.getFileUrl, 
     Hompage?.cvFile ? { storageId: Hompage.cvFile } : "skip"
   );
+
   const handleDownloadCV = async () => {
- 
-  if (!Hompage?.cvFile) return;
-     if (!cvUrl) return;
+    if (!Hompage?.cvFile) return;
+    if (!cvUrl) return;
     const link = document.createElement('a');
     link.href = cvUrl;
     link.download = 'CV.pdf';
@@ -32,62 +32,60 @@ const Hero = () => {
     document.body.removeChild(link);
   };
 
-
-
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || animationsLoaded) return;
 
-    const tl = gsap.timeline();
-    tl.from(".navbar", {
-      duration: 0.8,
-      y: -50,
-      opacity: 0,
-      ease: "power3.out",
-    })
-      .fromTo(".hero-heading", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, 0.3)
-      .fromTo(".hero-subtitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, 0.5)
-      .fromTo(".hero-buttons button", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, 0.7)
-      .fromTo(".stats-grid > div", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1, stagger: 0.1, ease: "power3.out" }, 0.9)
-      .to(
-        ".developer-illustration",
-        {
-          y: 10,
-          duration: 3,
-          repeat: -1,
-          yoyo: true,
-          ease: "power1.inOut",
-        },
-        0.5
-      );
+    // Lazy load GSAP only when needed
+    const loadAnimations = async () => {
+      const { gsap } = await import('gsap');
+      
+      const tl = gsap.timeline();
+      tl.from(".navbar", {
+        duration: 0.6,
+        y: -30,
+        opacity: 0,
+        ease: "power2.out",
+      })
+        .fromTo(".hero-heading", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 0.2)
+        .fromTo(".hero-subtitle", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 0.4)
+        .fromTo(".hero-buttons button", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power2.out" }, 0.6)
+        .fromTo(".stats-grid > div", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.05, ease: "power2.out" }, 0.8);
 
-    // Floating blob animations
-    gsap.to(".blob-purple", {
-      x: 20,
-      y: -20,
-      duration: 8,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-    });
+      // Simplified floating animation
+      gsap.to(".developer-illustration", {
+        y: 8,
+        duration: 4,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
 
-    gsap.to(".blob-blue", {
-      x: -15,
-      y: 15,
-      duration: 7,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-    });
+      // Reduced blob animations
+      gsap.to(".blob-purple", {
+        x: 15,
+        y: -15,
+        duration: 10,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
 
-    gsap.to(".blob-pink", {
-      x: 10,
-      y: -15,
-      duration: 9,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-    });
-  }, [isLoading]);
+      gsap.to(".blob-blue", {
+        x: -10,
+        y: 10,
+        duration: 12,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
+      setAnimationsLoaded(true);
+    };
+
+    // Delay animation loading to prioritize content rendering
+    const timer = setTimeout(loadAnimations, 100);
+    return () => clearTimeout(timer);
+  }, [isLoading, animationsLoaded]);
 
   const scrollToHash = (hash: string) => {
     if (hash && hash.startsWith("#")) {
@@ -108,7 +106,7 @@ const Hero = () => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (hash) {
-        const element = document.getElementById(hash.substring(1)); // Remove '#'
+        const element = document.getElementById(hash.substring(1));
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
@@ -116,7 +114,6 @@ const Hero = () => {
     };
 
     window.addEventListener("hashchange", handleHashChange);
-
     handleHashChange();
 
     return () => {
@@ -126,13 +123,13 @@ const Hero = () => {
 
   const handleProjectClick = () => {
     const targetHash = "#projects";
-
     if (pathname === "/") {
       scrollToHash(targetHash);
     } else {
       router.push(`/${targetHash}`);
     }
   };
+
   return (
     <div
       ref={heroRef}
@@ -143,7 +140,6 @@ const Hero = () => {
           : "bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800"
       }`}
     >
-      {/* Hero Section */}
       {!isLoading && (
         <div className="w-full flex justify-center">
           <div className="w-full max-w-7xl mt-10 md:mt-0 px-4 sm:px-6 lg:px-8 py-12 md:py-24 mx-auto">
@@ -159,19 +155,19 @@ const Hero = () => {
                 </h1>
 
                 <p className="hero-subtitle opacity-0 mt-6 text-lg max-w-2xl">
-                From concept to deployment, I bring together innovation, strategy, and technology to create impactful web applications that solve real-world problems.
+                  From concept to deployment, I bring together innovation, strategy, and technology to create impactful web applications that solve real-world problems.
                 </p>
 
                 <div className="hero-buttons mt-8 flex flex-wrap gap-4">
                   <button
                     onClick={handleProjectClick}
-                    className="px-6 py-3 cursor-pointer hover:scale-105  bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20 opacity-0"
+                    className="px-6 py-3 cursor-pointer hover:scale-105 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20 opacity-0"
                   >
                     View Projects
                   </button>
                   <button
                     onClick={handleDownloadCV}
-                    className={`px-6 py-3 cursor-pointer font-medium rounded-lg  ${
+                    className={`px-6 py-3 cursor-pointer font-medium rounded-lg ${
                       isDark
                         ? "bg-gray-800 border border-gray-700 hover:bg-gray-700"
                         : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-300 hover:bg-gray-40"
@@ -180,17 +176,17 @@ const Hero = () => {
                     Download CV
                   </button>
                   <a 
-                href="https://github.com/abdullahibbtwd" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className={`p-2 rounded-full transition-all ${
-                  isDark 
-                    ? "bg-gray-800 hover:bg-gray-700" 
-                    : "bg-gradient-to-br from-blue-50 to-purple-50 hover:bg-gray-100"
-                } shadow-md hover:shadow-lg items-center justify-center flex transform hover:-translate-y-1`}
-              >
-                <FaGithubSquare size={25} />
-              </a>
+                    href="https://github.com/abdullahibbtwd" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`p-2 rounded-full transition-all ${
+                      isDark 
+                        ? "bg-gray-800 hover:bg-gray-700" 
+                        : "bg-gradient-to-br from-blue-50 to-purple-50 hover:bg-gray-100"
+                    } shadow-md hover:shadow-lg items-center justify-center flex transform hover:-translate-y-1`}
+                  >
+                    <FaGithubSquare size={25} />
+                  </a>
                 </div>
 
                 <div className="stats-grid mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -241,9 +237,8 @@ const Hero = () => {
               <div className="relative">
                 <div className="relative w-full max-w-lg mx-auto">
                   {/* Animated Blobs */}
-                  <div className="blob-purple absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 dark:opacity-20" />
-                  <div className="blob-blue absolute top-0 -right-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 dark:opacity-20" />
-                  <div className="blob-pink absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 dark:opacity-20" />
+                  <div className="blob-purple absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 dark:opacity-15" />
+                  <div className="blob-blue absolute top-0 -right-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 dark:opacity-15" />
 
                   {/* Developer Illustration */}
                   <div className="developer-illustration relative rounded-2xl overflow-hidden border-8 border-white dark:border-gray-800 shadow-2xl">
@@ -261,16 +256,18 @@ const Hero = () => {
                           }`}
                         >
                           <div className="text-blue-500 text-5xl">
-                          {Hompage?.heroImageUrl && (
-                             <Image
-                              src={Hompage?.heroImageUrl || ""}
-                              alt="pic"
-                              className="rounded-full w-full h-full"
-                              width={200}
-                              height={200}
-                            />
-                          )}
-                           
+                            {Hompage?.heroImageUrl && (
+                              <Image
+                                src={Hompage?.heroImageUrl || ""}
+                                alt="pic"
+                                className="rounded-full w-full h-full object-cover"
+                                width={200}
+                                height={200}
+                                priority
+                                placeholder="blur"
+                                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                              />
+                            )}
                           </div>
                         </div>
                         <h3 className="text-xl font-bold mb-2">
@@ -299,8 +296,6 @@ const Hero = () => {
                         }`}
                       >
                         <ServerCog className="text-blue-500" />
-
-                        <i />
                       </div>
                       <div>
                         <div className="font-medium">Backend</div>

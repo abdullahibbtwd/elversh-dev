@@ -1,5 +1,11 @@
+"use client"
+import dynamic from 'next/dynamic'
 import React from 'react'
-import Chat from '@/components/Admin/Chat'
+
+const Chat = dynamic(() => import('@/components/Admin/Chat'), {
+  ssr: false,
+  loading: () => <div>Loading...</div>
+})
 
 const page = () => {
   return (
