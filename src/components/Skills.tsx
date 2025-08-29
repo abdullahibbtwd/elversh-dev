@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import React, { useEffect, useRef, useMemo } from 'react';
-import gsap from "gsap";
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useTheme } from '@/app/context/ThemeContext';
 import { 
   LayoutDashboard, 
@@ -42,54 +41,24 @@ const SkillsSection = () => {
   const skillsRef = useRef(null);
   const { isDark } = useTheme();
   const skillsRaw = useQuery(api.homePage.getSkills);
+  const [animationsLoaded, setAnimationsLoaded] = useState(false);
 
   useEffect(() => {
-    gsap.set(".skills-heading, .skills-subtitle, .skill-category", {
-      opacity: 0,
-      y: 30
-    });
+    if (animationsLoaded) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          gsap.to(".skills-heading", {
-            duration: 0.8,
-            y: 0,
-            opacity: 1,
-            ease: "power3.out"
-          });
-          gsap.to(".skills-subtitle", {
-            duration: 0.8,
-            y: 0,
-            opacity: 1,
-            delay: 0.2,
-            ease: "power3.out"
-          });
-          gsap.to(".skill-category", {
-            duration: 0.7,
-            y: 0,
-            opacity: 1,
-            stagger: 0.1,
-            delay: 0.4,
-            ease: "power3.out"
-          });
-        } else {
-          gsap.set(".skills-heading, .skills-subtitle, .skill-category", {
-            opacity: 0,
-            y: 30
-          });
-        }
+    // Use CSS animations instead of GSAP
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.skills-heading, .skills-subtitle, .skill-category');
+      elements.forEach((el, index) => {
+        setTimeout(() => {
+          el.classList.add('animate-fade-in');
+        }, index * 100);
       });
-    }, { threshold: 0.1 });
-    if (skillsRef.current) {
-      observer.observe(skillsRef.current);
-    }
-    return () => {
-      if (skillsRef.current) {
-        observer.unobserve(skillsRef.current);
-      }
-    };
-  }, []);
+      setAnimationsLoaded(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [animationsLoaded]);
 
   // Group skills by category
   const groupedSkills = useMemo(() => {
@@ -115,10 +84,10 @@ const SkillsSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center mb-16">
-          <h2 className="skills-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="skills-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4 opacity-0">
             Technical <span className="text-blue-500">Skills</span>
           </h2>
-          <p className="skills-subtitle text-lg max-w-2xl mx-auto">
+          <p className="skills-subtitle text-lg max-w-2xl mx-auto opacity-0">
             Expertise across the full development stack with years of hands-on experience
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mt-6"></div>
@@ -126,15 +95,16 @@ const SkillsSection = () => {
 
         {/* Skills Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {CATEGORY_ORDER.map((category) => (
+          {CATEGORY_ORDER.map((category, index) => (
             groupedSkills[category] && groupedSkills[category].length > 0 && (
               <div 
                 key={category}
-                className={`skill-category group p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 ${
+                className={`skill-category group p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 opacity-0 ${
                   isDark 
                     ? "bg-gray-900 border border-gray-800 hover:border-blue-500/50" 
                     : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 hover:border-blue-300"
                 }`}
+                style={{ animationDelay: `${index * 150}ms` }}
               >
                 <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${
                   isDark ? "bg-blue-900/30" : "bg-blue-100"
@@ -209,6 +179,23 @@ const SkillsSection = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.6s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
 import Image from "next/image";
 import { useTheme } from "@/app/context/ThemeContext";
 import {
@@ -24,57 +23,27 @@ const AboutMeSection = () => {
   const aboutRef = useRef(null);
   const { isDark } = useTheme();
   const [imageError, setImageError] = useState(false);
+  const [animationsLoaded, setAnimationsLoaded] = useState(false);
   
   // Add timeout protection for Convex query
   const aboutData = useQuery(api.homePage.getAboutSection);
 
   useEffect(() => {
-    // Animation for when section comes into view
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            gsap.from(".about-heading", {
-              duration: 0.8,
-              y: 30,
-              opacity: 0,
-              ease: "power3.out",
-            });
+    if (animationsLoaded) return;
 
-            gsap.from(".about-content", {
-              duration: 1,
-              y: 30,
-              opacity: 0,
-              stagger: 0.1,
-              delay: 0.3,
-              ease: "power3.out",
-            });
+    // Use CSS animations instead of GSAP
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.about-heading, .about-content, .skill-item');
+      elements.forEach((el, index) => {
+        setTimeout(() => {
+          el.classList.add('animate-fade-in');
+        }, index * 100);
+      });
+      setAnimationsLoaded(true);
+    }, 100);
 
-            gsap.from(".skill-item", {
-              duration: 0.7,
-              y: 20,
-              opacity: 1,
-              stagger: 0.1,
-              delay: 0.5,
-              ease: "power3.out",
-            });
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentRef = aboutRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [animationsLoaded]);
 
   // Handle image loading error
   const handleImageError = () => {
@@ -120,7 +89,7 @@ const AboutMeSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center mb-16">
-          <h2 className="about-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+          <h2 className="about-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-6 opacity-0">
             About <span className="text-blue-500">Me</span>
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
@@ -247,12 +216,12 @@ const AboutMeSection = () => {
 
           {/* Right Content - About Text */}
           <div className="about-content">
-            <h3 className="text-2xl md:text-3xl font-bold mb-6">
+            <h3 className="text-2xl md:text-3xl font-bold mb-6 opacity-0">
               {aboutData?.heading || "Passionate Full-Stack Developer"}
             </h3>
 
             <p
-              className={`mb-6 text-lg leading-relaxed ${
+              className={`mb-6 text-lg leading-relaxed opacity-0 ${
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >
@@ -260,7 +229,7 @@ const AboutMeSection = () => {
             </p>
 
             <p
-              className={`mb-8 text-lg leading-relaxed ${
+              className={`mb-8 text-lg leading-relaxed opacity-0 ${
                 isDark ? "text-gray-300" : "text-gray-700"
               }`}
             >
@@ -268,7 +237,7 @@ const AboutMeSection = () => {
             </p>
 
             {/* Skills Section */}
-            <div className="mb-10">
+            <div className="mb-10 opacity-0">
               <h4 className="text-xl font-bold mb-4">Essential Soft Skills</h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -336,11 +305,12 @@ const AboutMeSection = () => {
                 ].map((skill, index) => (
                   <div
                     key={index}
-                    className={`skill-item flex items-start p-4 rounded-xl transition-all hover:scale-[1.02] ${
+                    className={`skill-item flex items-start p-4 rounded-xl transition-all hover:scale-[1.02] opacity-0 ${
                       isDark
                         ? "bg-gray-800/50 border border-gray-700 hover:border-blue-500/50"
                         : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 hover:border-blue-300"
                     }`}
+                    style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div
                       className={`p-2 rounded-lg mr-4 ${
@@ -368,6 +338,23 @@ const AboutMeSection = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.6s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };

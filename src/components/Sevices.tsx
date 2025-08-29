@@ -1,6 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
-import gsap from "gsap";
+import React, { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@/app/context/ThemeContext';
 import { 
   Code, 
@@ -26,66 +25,30 @@ const ServicesSection = () => {
   const servicesRef = useRef(null);
   const { isDark } = useTheme();
   const services = useQuery(api.homePage.getServices);
-   useEffect(() => {
-   
-    gsap.set(".services-heading, .services-subtitle, .service-card", {
-      opacity: 0,
-      y: 30
-    });
+  const [animationsLoaded, setAnimationsLoaded] = useState(false);
 
-    // Animation for when section comes into view
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          gsap.to(".services-heading", {
-            duration: 0.8,
-            y: 0,
-            opacity: 1,
-            ease: "power3.out"
-          });
-          
-          gsap.to(".services-subtitle", {
-            duration: 0.8,
-            y: 0,
-            opacity: 1,
-            delay: 0.2,
-            ease: "power3.out"
-          });
-          
-          gsap.to(".service-card", {
-            duration: 0.7,
-            y: 0,
-            opacity: 1,
-            stagger: 0.1,
-            delay: 0.4,
-            ease: "power3.out"
-          });
-        } else {
-          // Reset to hidden state when not in view
-          gsap.set(".services-heading, .services-subtitle, .service-card", {
-            opacity: 0,
-            y: 30
-          });
-        }
+  useEffect(() => {
+    if (animationsLoaded) return;
+
+    // Use CSS animations instead of GSAP
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.services-heading, .services-subtitle, .service-card');
+      elements.forEach((el, index) => {
+        setTimeout(() => {
+          el.classList.add('animate-fade-in');
+        }, index * 100);
       });
-    }, { threshold: 0.1 });
-    
-    if (servicesRef.current) {
-      observer.observe(servicesRef.current);
-    }
-    
-    return () => {
-      if (servicesRef.current) {
-        observer.unobserve(servicesRef.current);
-      }
-    };
-  }, []);
+      setAnimationsLoaded(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [animationsLoaded]);
 
   return (
     <div 
       ref={servicesRef}
       id="services"
-     className={`py-24 transition-colors duration-300 ${
+      className={`py-24 transition-colors duration-300 ${
         isDark 
           ? "bg-[#0e0e0e] text-gray-100" 
           : "bg-gradient-to-br from-indigo-50 to-teal-50 text-gray-800"
@@ -94,10 +57,10 @@ const ServicesSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center mb-16">
-          <h2 className="services-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <h2 className="services-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4 opacity-0">
             My <span className="text-blue-500">Services</span>
           </h2>
-          <p className="services-subtitle text-lg max-w-2xl mx-auto">
+          <p className="services-subtitle text-lg max-w-2xl mx-auto opacity-0">
             Comprehensive solutions tailored to meet your business needs and technical requirements
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mt-6"></div>
@@ -108,11 +71,12 @@ const ServicesSection = () => {
           {services?.map((service, index) => (
             <div 
               key={index}
-              className={`service-card group p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 ${
+              className={`service-card group p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 opacity-0 ${
                 isDark 
                   ? "bg-gray-900 border border-gray-800 hover:border-blue-500/50" 
                   : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 hover:border-blue-300"
               }`}
+              style={{ animationDelay: `${index * 150}ms` }}
             >
               <div className={`w-16 h-16 rounded-xl flex items-center justify-center mb-6 ${
                 isDark ? "bg-blue-900/30" : "bg-blue-100"
@@ -181,6 +145,23 @@ const ServicesSection = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.6s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };
