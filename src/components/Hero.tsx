@@ -52,23 +52,31 @@ const Hero = () => {
     document.body.removeChild(link);
   };
 
-  // Simplified animation with CSS instead of GSAP
+  // Animation effect using intersection observer
   useEffect(() => {
-    if (animationsLoaded) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const elements = entry.target.querySelectorAll('.hero-heading, .hero-subtitle, .hero-buttons button, .stats-grid > div');
+            elements.forEach((el, index) => {
+              setTimeout(() => {
+                el.classList.add('animate-fade-in-up');
+              }, index * 100);
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
 
-    // Use CSS animations instead of GSAP for better performance
-    const timer = setTimeout(() => {
-      const elements = document.querySelectorAll('.hero-heading, .hero-subtitle, .hero-buttons button, .stats-grid > div');
-      elements.forEach((el, index) => {
-        setTimeout(() => {
-          el.classList.add('animate-fade-in');
-        }, index * 100);
-      });
-      setAnimationsLoaded(true);
-    }, 100);
+    if (heroRef.current) {
+      observer.observe(heroRef.current);
+    }
 
-    return () => clearTimeout(timer);
-  }, [animationsLoaded]);
+    return () => observer.disconnect();
+  }, []);
 
   const scrollToHash = (hash: string) => {
     if (hash && hash.startsWith("#")) {
@@ -128,7 +136,7 @@ const Hero = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div>
-              <h1 className="hero-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight opacity-0">
+              <h1 className="hero-heading text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
                 Building <span className="text-blue-500">Impactful</span>
                 <br />
                 Digital Experience
@@ -136,14 +144,14 @@ const Hero = () => {
                 for the web.
               </h1>
 
-              <p className="hero-subtitle mt-6 text-lg max-w-2xl opacity-0">
+              <p className="hero-subtitle mt-6 text-lg max-w-2xl">
                 From concept to deployment, I bring together innovation, strategy, and technology to create impactful web applications that solve real-world problems.
               </p>
 
               <div className="hero-buttons mt-8 flex flex-wrap gap-4">
                 <button
                   onClick={handleProjectClick}
-                  className="px-6 py-3 cursor-pointer hover:scale-105 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20 opacity-0"
+                  className="px-6 py-3 cursor-pointer hover:scale-105 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/20"
                 >
                   View Projects
                 </button>
@@ -153,7 +161,7 @@ const Hero = () => {
                     isDark
                       ? "bg-gray-800 border border-gray-700 hover:bg-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-300 hover:bg-gray-40"
-                  } opacity-0`}
+                  }`}
                 >
                   Download CV
                 </button>
@@ -165,7 +173,7 @@ const Hero = () => {
                     isDark 
                       ? "bg-gray-800 hover:bg-gray-700" 
                       : "bg-gradient-to-br from-blue-50 to-purple-50 hover:bg-gray-100"
-                  } shadow-md hover:shadow-lg items-center justify-center flex transform hover:-translate-y-1 opacity-0`}
+                  } shadow-md hover:shadow-lg items-center justify-center flex transform hover:-translate-y-1`}
                 >
                   <FaGithubSquare size={25} />
                 </a>
@@ -173,7 +181,7 @@ const Hero = () => {
 
               <div className="stats-grid mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div
-                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
+                  className={`p-4 rounded-lg shadow-sm ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
@@ -183,7 +191,7 @@ const Hero = () => {
                   <div className="text-sm">Projects</div>
                 </div>
                 <div
-                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
+                  className={`p-4 rounded-lg shadow-sm ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
@@ -193,7 +201,7 @@ const Hero = () => {
                   <div className="text-sm">Years</div>
                 </div>
                 <div
-                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
+                  className={`p-4 rounded-lg shadow-sm ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
@@ -203,7 +211,7 @@ const Hero = () => {
                   <div className="text-sm">Satisfaction</div>
                 </div>
                 <div
-                  className={`p-4 rounded-lg shadow-sm opacity-0 ${
+                  className={`p-4 rounded-lg shadow-sm ${
                     isDark
                       ? "bg-gray-800 border border-gray-700"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
@@ -323,22 +331,7 @@ const Hero = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in {
-          animation: fadeIn 0.6s ease-out forwards;
-        }
-      `}</style>
+
     </div>
   );
 };

@@ -1,7 +1,5 @@
 "use client"
 import React, { useRef, useEffect, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MessageCircle } from 'lucide-react';
 import { FaFacebook,FaWhatsappSquare,FaLinkedin  } from "react-icons/fa";
 import emailjs from '@emailjs/browser';
@@ -12,7 +10,7 @@ import Image from "next/image";
 
 import { useTheme } from '@/app/context/ThemeContext';
 
-gsap.registerPlugin(ScrollTrigger);
+
 
 // Add this interface above the Contact component
 interface ChatMessage {
@@ -99,38 +97,30 @@ const Contact = () => {
   useEffect(() => {
     emailjs.init(EMAILJS_PUBLIC_KEY);
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: contactRef.current,
-        start: "top 80%",
+    // Animation effect using intersection observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const elements = entry.target.querySelectorAll('.contact-heading, .contact-subtitle, .contact-form, .social-card');
+          elements.forEach((el, index) => {
+            setTimeout(() => {
+              el.classList.add('animate-fade-in-up');
+            }, index * 100);
+          });
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '50px' });
+
+    if (contactRef.current) {
+      observer.observe(contactRef.current);
+    }
+
+    return () => {
+      if (contactRef.current) {
+        observer.unobserve(contactRef.current);
       }
-    });
-
-    tl.fromTo(".contact-heading", { y: 30, opacity: 0 }, { duration: 0.8, y: 0, opacity: 1, ease: "power3.out" })
-      .fromTo(".contact-subtitle", { y: 30, opacity: 0 }, { duration: 0.8, y: 0, opacity: 1, ease: "power3.out" }, "-=0.5")
-      .fromTo(".contact-form", { y: 30, opacity: 0 }, { duration: 1, y: 0, opacity: 1, ease: "power3.out" }, "-=0.3")
-      .fromTo(".social-card", { y: 30, opacity: 0 }, { duration: 0.8, y: 0, opacity: 1, stagger: 0.1, ease: "power3.out" }, "-=0.5");
-
-    // Floating blob animations
-    gsap.to(".contact-blob-purple", {
-      x: 15,
-      y: -15,
-      duration: 8,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
-    
-    gsap.to(".contact-blob-blue", {
-      x: -10,
-      y: 10,
-      duration: 7,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
-
-    ScrollTrigger.refresh();
+    };
   }, [EMAILJS_PUBLIC_KEY]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

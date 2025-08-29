@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
 import { useTheme } from '@/app/context/ThemeContext';
 import { ChevronDown, ChevronUp, Briefcase, Calendar, ExternalLink } from 'lucide-react';
 import { useQuery } from 'convex/react';
@@ -63,45 +62,19 @@ const ExperienceSection = () => {
 
   // Animation setup
   useEffect(() => {
-    gsap.set(".experience-heading, .experience-subtitle, .experience-card", {
-      opacity: 0,
-      y: 40
-    });
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          gsap.to(".experience-heading", {
-            duration: 0.8,
-            y: 0,
-            opacity: 1,
-            ease: "power3.out"
+          const elements = entry.target.querySelectorAll('.experience-heading, .experience-subtitle, .experience-card');
+          elements.forEach((el, index) => {
+            setTimeout(() => {
+              el.classList.add('animate-fade-in-up');
+            }, index * 100);
           });
-          
-          gsap.to(".experience-subtitle", {
-            duration: 0.8,
-            y: 0,
-            opacity: 1,
-            delay: 0.2,
-            ease: "power3.out"
-          });
-          
-          gsap.to(".experience-card", {
-            duration: 0.7,
-            y: 0,
-            opacity: 1,
-            stagger: 0.15,
-            delay: 0.4,
-            ease: "power3.out"
-          });
-        } else {
-          gsap.set(".experience-heading, .experience-subtitle, .experience-card", {
-            opacity: 0,
-            y: 40
-          });
+          observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.1, rootMargin: '50px' });
     
     if (experienceRef.current) {
       observer.observe(experienceRef.current);

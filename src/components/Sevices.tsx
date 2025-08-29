@@ -25,24 +25,32 @@ const ServicesSection = () => {
   const servicesRef = useRef(null);
   const { isDark } = useTheme();
   const services = useQuery(api.homePage.getServices);
-  const [animationsLoaded, setAnimationsLoaded] = useState(false);
 
+  // Animation effect using intersection observer
   useEffect(() => {
-    if (animationsLoaded) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const elements = entry.target.querySelectorAll('.services-heading, .services-subtitle, .service-card');
+            elements.forEach((el, index) => {
+              setTimeout(() => {
+                el.classList.add('animate-fade-in-up');
+              }, index * 100);
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
 
-    // Use CSS animations instead of GSAP
-    const timer = setTimeout(() => {
-      const elements = document.querySelectorAll('.services-heading, .services-subtitle, .service-card');
-      elements.forEach((el, index) => {
-        setTimeout(() => {
-          el.classList.add('animate-fade-in');
-        }, index * 100);
-      });
-      setAnimationsLoaded(true);
-    }, 100);
+    if (servicesRef.current) {
+      observer.observe(servicesRef.current);
+    }
 
-    return () => clearTimeout(timer);
-  }, [animationsLoaded]);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div 
@@ -57,10 +65,10 @@ const ServicesSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center mb-16">
-          <h2 className="services-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4 opacity-0">
+          <h2 className="services-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             My <span className="text-blue-500">Services</span>
           </h2>
-          <p className="services-subtitle text-lg max-w-2xl mx-auto opacity-0">
+          <p className="services-subtitle text-lg max-w-2xl mx-auto">
             Comprehensive solutions tailored to meet your business needs and technical requirements
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mt-6"></div>
@@ -71,7 +79,7 @@ const ServicesSection = () => {
           {services?.map((service, index) => (
             <div 
               key={index}
-              className={`service-card group p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 opacity-0 ${
+              className={`service-card group p-8 rounded-2xl transition-all duration-300 hover:-translate-y-2 ${
                 isDark 
                   ? "bg-gray-900 border border-gray-800 hover:border-blue-500/50" 
                   : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 hover:border-blue-300"
@@ -146,22 +154,7 @@ const ServicesSection = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in {
-          animation: fadeIn 0.6s ease-out forwards;
-        }
-      `}</style>
+
     </div>
   );
 };

@@ -41,24 +41,32 @@ const SkillsSection = () => {
   const skillsRef = useRef(null);
   const { isDark } = useTheme();
   const skillsRaw = useQuery(api.homePage.getSkills);
-  const [animationsLoaded, setAnimationsLoaded] = useState(false);
 
+  // Animation effect using intersection observer
   useEffect(() => {
-    if (animationsLoaded) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const elements = entry.target.querySelectorAll('.skills-heading, .skills-subtitle, .skill-category');
+            elements.forEach((el, index) => {
+              setTimeout(() => {
+                el.classList.add('animate-fade-in-up');
+              }, index * 100);
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
 
-    // Use CSS animations instead of GSAP
-    const timer = setTimeout(() => {
-      const elements = document.querySelectorAll('.skills-heading, .skills-subtitle, .skill-category');
-      elements.forEach((el, index) => {
-        setTimeout(() => {
-          el.classList.add('animate-fade-in');
-        }, index * 100);
-      });
-      setAnimationsLoaded(true);
-    }, 100);
+    if (skillsRef.current) {
+      observer.observe(skillsRef.current);
+    }
 
-    return () => clearTimeout(timer);
-  }, [animationsLoaded]);
+    return () => observer.disconnect();
+  }, []);
 
   // Group skills by category
   const groupedSkills = useMemo(() => {
@@ -84,10 +92,10 @@ const SkillsSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
         <div className="text-center mb-16">
-          <h2 className="skills-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4 opacity-0">
+          <h2 className="skills-heading text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
             Technical <span className="text-blue-500">Skills</span>
           </h2>
-          <p className="skills-subtitle text-lg max-w-2xl mx-auto opacity-0">
+          <p className="skills-subtitle text-lg max-w-2xl mx-auto">
             Expertise across the full development stack with years of hands-on experience
           </p>
           <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full mt-6"></div>
@@ -180,22 +188,7 @@ const SkillsSection = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fade-in {
-          animation: fadeIn 0.6s ease-out forwards;
-        }
-      `}</style>
+
     </div>
   );
 };
