@@ -1,28 +1,21 @@
 "use client";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import gsap from "gsap";
 
 export default function GlobalLoader({ children }: { children: React.ReactNode }) {
-  const Hompage = useQuery(api.homePage.getHomePageContent);
   const [showLoader, setShowLoader] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
-  
-  const isLoading = Hompage === undefined;
 
   useEffect(() => {
-    // Show loader for minimum 1 second to prevent flash
+    // Show loader for minimum 800ms to prevent flash and allow content to load
     const timer = setTimeout(() => {
-      if (!isLoading) {
-        setFadeOut(true);
-        setTimeout(() => setShowLoader(false), 300);
-      }
-    }, 1000);
+      setFadeOut(true);
+      setTimeout(() => setShowLoader(false), 300);
+    }, 800);
 
     return () => clearTimeout(timer);
-  }, [isLoading]);
+  }, []);
 
   useEffect(() => {
     if (showLoader) {

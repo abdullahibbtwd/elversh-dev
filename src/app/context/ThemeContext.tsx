@@ -1,28 +1,21 @@
 'use client';
 
-import { useQuery } from 'convex/react';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { useRouter } from 'next/navigation';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { api } from '../../../convex/_generated/api';
-
 
 interface ThemeContextType {
   isDark: boolean;
   toggleTheme: () => void;
   router: AppRouterInstance;
-  isLoading: boolean;
 }
-
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(false);
-    const router = useRouter()
-    const Hompage = useQuery(api.homePage.getHomePageContent);
-    const isLoading = Hompage === undefined;
+  const router = useRouter();
+
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -35,7 +28,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setIsDark(false);
     }
   }, []); 
-
 
   const toggleTheme = () => {
     const newIsDark = !isDark;
@@ -50,12 +42,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   const contextValue: ThemeContextType = {
     isDark,
     toggleTheme,
-    router,
-    isLoading
+    router
   };
 
   return (
@@ -64,7 +54,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     </ThemeContext.Provider>
   );
 }
-
 
 export function useTheme() {
   const context = useContext(ThemeContext);

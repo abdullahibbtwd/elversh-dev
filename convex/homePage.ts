@@ -38,18 +38,39 @@ export const getAboutSection = query({
 
 export const getHomePageContent = query({
   handler: async (ctx) => {
-    const data = await ctx.db.query('homePageContent').first();
-    if (!data) return null;
-    
-   
-    const heroImageUrl = data.heroImage ? await ctx.storage.getUrl(data.heroImage) : null;
-    const cvFileUrl = data.cvFile ? await ctx.storage.getUrl(data.cvFile) : null;
-    
-    return {
-      ...data,
-      heroImageUrl,
-      cvFileUrl
-    };
+    try {
+      const data = await ctx.db.query('homePageContent').first();
+      if (!data) return null;
+      
+      // Only fetch URLs if they exist and haven't been cached
+      let heroImageUrl = null;
+      let cvFileUrl = null;
+      
+      if (data.heroImage) {
+        try {
+          heroImageUrl = await ctx.storage.getUrl(data.heroImage);
+        } catch (error) {
+          console.error('Error getting hero image URL:', error);
+        }
+      }
+      
+      if (data.cvFile) {
+        try {
+          cvFileUrl = await ctx.storage.getUrl(data.cvFile);
+        } catch (error) {
+          console.error('Error getting CV file URL:', error);
+        }
+      }
+      
+      return {
+        ...data,
+        heroImageUrl,
+        cvFileUrl
+      };
+    } catch (error) {
+      console.error('Error in getHomePageContent:', error);
+      return null;
+    }
   },
 });
 
