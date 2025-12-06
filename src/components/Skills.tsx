@@ -2,12 +2,12 @@
 "use client";
 import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { useTheme } from '@/app/context/ThemeContext';
-import { 
-  LayoutDashboard, 
-  ServerCog, 
-  Database, 
-  Cpu, 
-  Cloud, 
+import {
+  LayoutDashboard,
+  ServerCog,
+  Database,
+  Cpu,
+  Cloud,
   Code2,
   GitBranch,
   TestTube2,
@@ -16,6 +16,15 @@ import {
 } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '@/../convex/_generated/api';
+
+// Define interface for Skill to avoid implicit any
+interface Skill {
+  _id: string;
+  name: string;
+  category: string;
+  image?: string;
+  years: number;
+}
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   "Frontend": <LayoutDashboard className="text-blue-500" size={32} />,
@@ -42,6 +51,17 @@ const SkillsSection = () => {
   const { isDark } = useTheme();
   const skillsRaw = useQuery(api.homePage.getSkills);
 
+  // Group skills by category
+  const groupedSkills = useMemo(() => {
+    const skills = (skillsRaw as unknown as Skill[]) || [];
+    const groups: Record<string, Skill[]> = {};
+    for (const skill of skills) {
+      if (!groups[skill.category]) groups[skill.category] = [];
+      groups[skill.category].push(skill);
+    }
+    return groups;
+  }, [skillsRaw]);
+
   // Animation effect using intersection observer
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -49,12 +69,15 @@ const SkillsSection = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const elements = entry.target.querySelectorAll('.skills-heading, .skills-subtitle, .skill-category');
-            elements.forEach((el, index) => {
-              setTimeout(() => {
-                el.classList.add('animate-fade-in-up');
-              }, index * 100);
-            });
-            observer.unobserve(entry.target);
+
+            if (elements.length > 0) {
+              elements.forEach((el, index) => {
+                setTimeout(() => {
+                  el.classList.add('animate-fade-in-up');
+                }, index * 100);
+              });
+              observer.unobserve(entry.target);
+            }
           }
         });
       },
@@ -66,28 +89,16 @@ const SkillsSection = () => {
     }
 
     return () => observer.disconnect();
-  }, []);
-
-  // Group skills by category
-  const groupedSkills = useMemo(() => {
-    const skills = skillsRaw || [];
-    const groups: Record<string, typeof skills> = {};
-    for (const skill of skills) {
-      if (!groups[skill.category]) groups[skill.category] = [];
-      groups[skill.category].push(skill);
-    }
-    return groups;
-  }, [skillsRaw]);
+  }, [groupedSkills]);
 
   return (
-    <div 
+    <div
       ref={skillsRef}
       id="skills"
-      className={`py-24 transition-colors duration-300 ${
-        isDark 
-          ? "bg-[#000000] text-gray-100" 
+      className={`py-24 transition-colors duration-300 ${isDark
+          ? "bg-[#000000] text-gray-100"
           : "bg-gradient-to-br from-blue-50 to-purple-50 text-gray-800"
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
@@ -105,18 +116,16 @@ const SkillsSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {CATEGORY_ORDER.map((category, index) => (
             groupedSkills[category] && groupedSkills[category].length > 0 && (
-              <div 
+              <div
                 key={category}
-                className={`skill-category group p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 opacity-0 ${
-                  isDark 
-                    ? "bg-gray-900 border border-gray-800 hover:border-blue-500/50" 
+                className={`skill-category group p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 opacity-0 ${isDark
+                    ? "bg-gray-900 border border-gray-800 hover:border-blue-500/50"
                     : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200 hover:border-blue-300"
-                }`}
+                  }`}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
-                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${
-                  isDark ? "bg-blue-900/30" : "bg-blue-100"
-                }`}>
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-4 ${isDark ? "bg-blue-900/30" : "bg-blue-100"
+                  }`}>
                   {CATEGORY_ICONS[category]}
                 </div>
                 <h3 className="text-xl font-bold mb-5 group-hover:text-blue-500 transition-colors">
@@ -124,25 +133,24 @@ const SkillsSection = () => {
                 </h3>
                 <ul className="space-y-3">
                   {groupedSkills[category].map((skill) => (
-                    <li 
-                      key={skill._id} 
+                    <li
+                      key={skill._id}
                       className="flex justify-between items-center py-1 border-b border-gray-700/30"
                     >
                       <div className="flex items-center gap-2">
                         {skill.image && (
-                          <img 
-                            src={skill.image} 
-                            alt={skill.name} 
+                          <img
+                            src={skill.image}
+                            alt={skill.name}
                             className="w-6 h-6 object-contain"
                           />
                         )}
                         <span className="font-medium">{skill.name}</span>
                       </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        isDark 
-                          ? "bg-blue-900/40 text-blue-300" 
+                      <span className={`text-xs px-2 py-1 rounded-full ${isDark
+                          ? "bg-blue-900/40 text-blue-300"
                           : "bg-blue-100 text-blue-700"
-                      } opacity-0 group-hover:opacity-100 transition-opacity`}>
+                        } opacity-0 group-hover:opacity-100 transition-opacity`}>
                         {skill.years}+ {skill.years === 1 ? "year" : "years"}
                       </span>
                     </li>
@@ -154,11 +162,10 @@ const SkillsSection = () => {
         </div>
 
         {/* Complementary Skills */}
-        <div className={`mt-16 p-8 rounded-2xl ${
-          isDark 
-            ? "bg-gray-900/50 border border-gray-800" 
+        <div className={`mt-16 p-8 rounded-2xl ${isDark
+            ? "bg-gray-900/50 border border-gray-800"
             : "bg-gradient-to-br from-blue-50 to-purple-50 border border-gray-200"
-        }`}>
+          }`}>
           <div className="max-w-4xl mx-auto">
             <h3 className="text-2xl font-bold mb-6 text-center">
               Complementary Skills
@@ -171,13 +178,12 @@ const SkillsSection = () => {
                 { name: "Version Control", icon: <GitBranch className="text-blue-500" size={20} /> },
                 { name: "Security Best Practices", icon: <ShieldCheck className="text-blue-500" size={20} /> }
               ].map((item, index) => (
-                <div 
+                <div
                   key={index}
-                  className={`flex items-center px-4 py-2 rounded-full ${
-                    isDark 
-                      ? "bg-gray-800/50 hover:bg-gray-800" 
+                  className={`flex items-center px-4 py-2 rounded-full ${isDark
+                      ? "bg-gray-800/50 hover:bg-gray-800"
                       : "bg-gradient-to-br from-blue-50 to-purple-50 hover:bg-blue-100"
-                  } transition-colors`}
+                    } transition-colors`}
                 >
                   <div className="mr-2">{item.icon}</div>
                   <span className="font-medium text-sm">{item.name}</span>
