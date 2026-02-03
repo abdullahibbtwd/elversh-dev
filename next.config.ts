@@ -29,9 +29,8 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'react-icons'],
   },
-   eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // `eslint` option in next.config is no longer supported in Next.js 16.
+  // If you want to ignore ESLint during build, configure your CI/lint scripts accordingly.
   typescript: {
     ignoreBuildErrors: true,
   },
