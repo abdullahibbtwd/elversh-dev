@@ -29,8 +29,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'react-icons'],
   },
-
-  eslint: {
+   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
